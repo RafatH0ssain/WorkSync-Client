@@ -1,14 +1,15 @@
 import React from 'react';
 import { FaGoogle } from "react-icons/fa";
 import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
-import { useNavigate } from 'react-router-dom';  // Import useNavigate from react-router-dom
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 // Firebase provider for Google
 const googleProvider = new GoogleAuthProvider();
 const auth = getAuth();
 
 const SocialsLogin = () => {
-    const navigate = useNavigate();  // Initialize the useNavigate hook
+    const navigate = useNavigate();
 
     const handleGoogleLogin = async () => {
         try {
@@ -19,7 +20,18 @@ const SocialsLogin = () => {
             const user = result.user;
             console.log('Google login success:', user.displayName);
 
-            // After successful login, navigate to the home page
+            // Send user data to backend
+            const userData = {
+                name: user.displayName,
+                email: user.email,
+                photoURL: user.photoURL,
+                uid: user.uid,
+            };
+
+            // Send the data to your backend to store it in MongoDB
+            await axios.post('http://localhost:5000/users', userData); // Replace with your actual backend URL
+
+            // After successful login and backend update, navigate to the home page
             navigate('/');  // Redirect to home ("/")
         } catch (error) {
             console.error('Error during Google login:', error.message);
@@ -30,7 +42,7 @@ const SocialsLogin = () => {
         <div>
             <div className="w-full space-y-2">
                 <button className="btn btn-outline btn-info" onClick={handleGoogleLogin}>
-                    <FaGoogle /> Login With Google
+                    <FaGoogle /> Google Authentication
                 </button>
             </div>
         </div>

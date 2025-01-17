@@ -12,7 +12,7 @@ const Login = () => {
     const navigate = useNavigate();
 
     const handleSubmit = (e) => {
-        e.preventDefault(); // This prevents the default form submit action (page reload)
+        e.preventDefault(); // This prevents the default form submit (page reload)
         const form = e.target;
         const email = form.email.value;
         const password = form.password.value;
@@ -42,19 +42,19 @@ const Login = () => {
     };
 
     return (
-        <div className="mt-6 min-h-screen flex flex-col justify-center items-center bg-black text-white">
-            <div className="card bg-white w-full max-w-lg mx-auto shrink-0 rounded-2xl p-10">
+        <div className="mt-6 min-h-screen flex flex-col justify-center items-center text-black poppins-regular">
+            <div className="cardw-full max-w-lg mx-auto shrink-0 rounded-2xl p-10">
                 <h2 className="font-bold text-center text-3xl pt-5">Login your Account</h2>
                 <form onSubmit={handleSubmit} className="card-body">
                     <div className="form-control">
                         <label className="label">
-                            <span className="font-bold text-white">Email</span>
+                            <span className="font-bold text-black">Email</span>
                         </label>
                         <input type="email" placeholder="email" className="input input-bordered" required name="email" />
                     </div>
                     <div className="form-control">
                         <label className="label">
-                            <span className="text-white font-bold">Password</span>
+                            <span className="text-black font-bold">Password</span>
                         </label>
                         <input type="password" placeholder="password" className="input input-bordered" required name="password" />
                         {
@@ -69,9 +69,9 @@ const Login = () => {
                         <button className="btn btn-success text-white rounded-xl border-none hover:bg-gray-500">Login</button>
                     </div>
                 </form>
-                <p className="text-center font-semibold pb-5">Don't Have An Account? <Link className="text-red-500" to="/auth/register">Register</Link></p>
+                <p className="text-center font-semibold">Don't Have An Account? <Link className="text-red-500" to="/auth/register">Register</Link></p>
             </div>
-            <h2 className="text-white text-3xl font-extrabold pt-16 pb-10">OR</h2>
+            <h2 className="text-black text-3xl font-extrabold pt-5 pb-10">OR</h2>
             <SocialsLogin />
             {/* Toast Container */}
             <ToastContainer />

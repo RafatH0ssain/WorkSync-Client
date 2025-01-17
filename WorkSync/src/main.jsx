@@ -15,6 +15,7 @@ import PrivateRoute from './components/Auth/PrivateRoute';
 import AuthLayout from './components/Auth/AuthLayout';
 import Login from './components/Auth/Login';
 import Register from './components/Auth/Register';
+import Worksheet from './pages/Employee/Worksheet';
 
 const router = createBrowserRouter([
   { // Home Page
@@ -39,11 +40,11 @@ const router = createBrowserRouter([
     </div>,
     errorElement: <ErrorPage />,
   },
-  {
+  { // Error Page
     path: "/*",
     element: <ErrorPage />
   },
-  { // Login & Registration systems
+  { // Login & Registration systems page
     path: '/auth',
     element: <div className='w-11/12 mx-auto'><AuthLayout /></div>,
     children: [
@@ -56,6 +57,16 @@ const router = createBrowserRouter([
         element: <Register />
       },
     ],
+  },
+  { // EMPLOYEE Work-Sheet page
+    path: '/work-sheet',
+    element: <div className='w-11/12 mx-auto'>
+      <PrivateRoute>
+        <Navbar />
+        <Worksheet />
+        <Footer />
+      </PrivateRoute>
+    </div>,
   }
 ]);
 
