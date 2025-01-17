@@ -15,23 +15,28 @@ import Footer from './components/Shared/Footer';
 const router = createBrowserRouter([
   { // Home Page
     path: "/",
-    element: <Home />,
-    errorElement: <ErrorPage />
+    element: <div>
+      <Navbar />
+      <Home />
+      <Footer />
+    </div>,
+    errorElement: <ErrorPage />,
   },
   { // Contact Us Page
     path: "/contactUs",
     element: <ContactUs />,
-    errorElement: <ErrorPage />
+    errorElement: <ErrorPage />,
+  },
+  {
+    path: "/*",
+    element: <ErrorPage/>
   }
 ]);
-
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <StrictMode>
     <AuthProvider>
-      <Navbar />
       <RouterProvider router={router}></RouterProvider>
-      <Footer />
     </AuthProvider>
   </StrictMode>,
 )
