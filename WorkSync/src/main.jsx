@@ -11,32 +11,58 @@ import AuthProvider from './components/Auth/AuthProvider';
 import ContactUs from './pages/ContactUs';
 import Navbar from './components/Shared/Navbar';
 import Footer from './components/Shared/Footer';
+import PrivateRoute from './components/Auth/PrivateRoute';
+import AuthLayout from './components/Auth/AuthLayout';
+import Login from './components/Auth/Login';
+import Register from './components/Auth/Register';
 
 const router = createBrowserRouter([
   { // Home Page
     path: "/",
-    element: <div>
-      <Navbar />
-      <Home />
-      <Footer />
+    element: <div className='w-11/12 mx-auto'>
+      <PrivateRoute>
+        <Navbar />
+        <Home />
+        <Footer />
+      </PrivateRoute>
     </div>,
     errorElement: <ErrorPage />,
   },
   { // Contact Us Page
     path: "/contactUs",
-    element: <ContactUs />,
+    element: <div className='w-11/12 mx-auto'>
+      <PrivateRoute>
+        <Navbar />
+        <ContactUs />
+        <Footer />
+      </PrivateRoute>
+    </div>,
     errorElement: <ErrorPage />,
   },
   {
     path: "/*",
-    element: <ErrorPage/>
+    element: <ErrorPage />
+  },
+  { // Login & Registration systems
+    path: '/auth',
+    element: <div className='w-11/12 mx-auto'><AuthLayout /></div>,
+    children: [
+      {
+        path: '/auth/login',
+        element: <Login />
+      },
+      {
+        path: '/auth/register',
+        element: <Register />
+      },
+    ],
   }
 ]);
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <StrictMode>
     <AuthProvider>
-      <RouterProvider router={router}></RouterProvider>
+      <RouterProvider router={router} ></RouterProvider>
     </AuthProvider>
   </StrictMode>,
 )
