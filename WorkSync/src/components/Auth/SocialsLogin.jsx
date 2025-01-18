@@ -25,11 +25,12 @@ const SocialsLogin = () => {
                 name: user.displayName,
                 email: user.email,
                 photoURL: user.photoURL,
+                userType: "employee",
                 uid: user.uid,
             };
 
             // Send the data to your backend to store it in MongoDB
-            await axios.post('http://localhost:5000/users', userData); // Replace with your actual backend URL
+            await axios.post('http://localhost:5000/users', userData);
 
             // After successful login and backend update, navigate to the home page
             navigate('/');  // Redirect to home ("/")
