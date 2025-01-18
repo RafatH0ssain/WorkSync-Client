@@ -18,7 +18,6 @@ const Worksheet = () => {
     ]);  // Sample payment data
 
     const handleAddTask = () => {
-        // Add task to the list (simulate adding to the DB)
         const newTask = {
             task: taskData.task,
             hoursWorked: taskData.hoursWorked,
@@ -33,7 +32,7 @@ const Worksheet = () => {
     };
 
     const handleUpdateTask = () => {
-        const updatedTasks = tasks.map(task => 
+        const updatedTasks = tasks.map(task =>
             task === editTask ? taskData : task
         );
         setTasks(updatedTasks);
@@ -46,100 +45,147 @@ const Worksheet = () => {
     };
 
     return (
-        <div className="worksheet-container">
+        <div className="max-w-6xl mx-auto mt-20">
             {/* Form for adding new tasks */}
-            <div className="task-form">
+            <div className="flex space-x-6 mb-6 bg-orange-50 p-4 rounded-lg shadow-md">
                 <select
                     value={taskData.task}
                     onChange={(e) => setTaskData({ ...taskData, task: e.target.value })}
+                    className="flex-1 p-2 border rounded-md shadow-md"
                 >
                     <option value="Sales">Sales</option>
                     <option value="Support">Support</option>
                     <option value="Content">Content</option>
                     <option value="Paper-work">Paper-work</option>
-                    <option value="Development">Development</option>  {/* Additional option */}
+                    <option value="Development">Development</option>
                 </select>
                 <input
                     type="number"
                     placeholder="Hours Worked"
                     value={taskData.hoursWorked}
                     onChange={(e) => setTaskData({ ...taskData, hoursWorked: e.target.value })}
+                    className="flex-1 p-2 border rounded-md shadow-md"
                 />
                 <DatePicker
                     selected={taskData.date}
                     onChange={(date) => setTaskData({ ...taskData, date })}
                     dateFormat="yyyy-MM-dd"
+                    className="flex-1 p-2 border rounded-md shadow-md"
                 />
-                <button onClick={handleAddTask}>Add / Submit</button>
+                <button
+                    onClick={handleAddTask}
+                    className="bg-orange-600 text-white p-2 rounded-md shadow-md hover:bg-orange-700 transition duration-300"
+                >
+                    Add / Submit
+                </button>
             </div>
 
-            {/* Table for displaying tasks */}
-            <div className="task-table">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Task</th>
-                            <th>Hours Worked</th>
-                            <th>Date</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {tasks.map((task, index) => (
-                            <tr key={index}>
-                                <td>{task.task}</td>
-                                <td>{task.hoursWorked}</td>
-                                <td>{task.date.toLocaleDateString()}</td>
-                                <td>
-                                    <button onClick={() => handleEditTask(index)}>🖊 Edit</button>
-                                    <button onClick={() => handleDeleteTask(index)}>❌ Delete</button>
-                                </td>
+            {/* Task Table */}
+            <div className="overflow-x-auto bg-white rounded-lg shadow-lg p-4">
+                {tasks.length === 0 ? (
+                    <div className="text-center py-6 text-gray-600 font-semibold">
+                        No tasks added yet.
+                    </div>
+                ) : (
+                    <table className="min-w-full table-auto border-collapse">
+                        <thead className="bg-orange-100 text-gray-800">
+                            <tr>
+                                <th className="py-3 px-6 text-left">Task</th>
+                                <th className="py-3 px-6 text-left">Hours Worked</th>
+                                <th className="py-3 px-6 text-left">Date</th>
+                                <th className="py-3 px-6 text-left">Actions</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            {tasks.map((task, index) => (
+                                <tr key={index} className="border-b hover:bg-gray-50">
+                                    <td className="py-3 px-6">{task.task}</td>
+                                    <td className="py-3 px-6">{task.hoursWorked}</td>
+                                    <td className="py-3 px-6">{task.date.toLocaleDateString()}</td>
+                                    <td className="py-3 px-6">
+                                        <button
+                                            onClick={() => handleEditTask(index)}
+                                            className="text-blue-500 hover:text-blue-700 transition duration-200"
+                                        >
+                                            🖊 Edit
+                                        </button>
+                                        <button
+                                            onClick={() => handleDeleteTask(index)}
+                                            className="text-red-500 hover:text-red-700 transition duration-200 ml-4"
+                                        >
+                                            ❌ Delete
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                )}
             </div>
 
-            {/* Modal for editing task */}
+            {/* Edit Task Modal */}
             {editTask && (
-                <div className="modal">
-                    <h3>Edit Task</h3>
-                    <select
-                        value={taskData.task}
-                        onChange={(e) => setTaskData({ ...taskData, task: e.target.value })}
-                    >
-                        <option value="Sales">Sales</option>
-                        <option value="Support">Support</option>
-                        <option value="Content">Content</option>
-                        <option value="Paper-work">Paper-work</option>
-                    </select>
-                    <input
-                        type="number"
-                        value={taskData.hoursWorked}
-                        onChange={(e) => setTaskData({ ...taskData, hoursWorked: e.target.value })}
-                    />
-                    <DatePicker
-                        selected={taskData.date}
-                        onChange={(date) => setTaskData({ ...taskData, date })}
-                        dateFormat="yyyy-MM-dd"
-                    />
-                    <button onClick={handleUpdateTask}>Update</button>
-                    <button onClick={() => setEditTask(null)}>Close</button>
+                <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center shadow-lg">
+                    <div className="bg-white p-6 rounded-lg max-w-md w-full">
+                        <h3 className="text-xl font-semibold text-gray-800 mb-4">Edit Task</h3>
+                        <select
+                            value={taskData.task}
+                            onChange={(e) => setTaskData({ ...taskData, task: e.target.value })}
+                            className="w-full p-2 mb-4 border rounded-md shadow-md"
+                        >
+                            <option value="Sales">Sales</option>
+                            <option value="Support">Support</option>
+                            <option value="Content">Content</option>
+                            <option value="Paper-work">Paper-work</option>
+                        </select>
+                        <input
+                            type="number"
+                            value={taskData.hoursWorked}
+                            onChange={(e) => setTaskData({ ...taskData, hoursWorked: e.target.value })}
+                            className="w-full p-2 mb-4 border rounded-md shadow-md"
+                        />
+                        <DatePicker
+                            selected={taskData.date}
+                            onChange={(date) => setTaskData({ ...taskData, date })}
+                            dateFormat="yyyy-MM-dd"
+                            className="w-full p-2 mb-4 border rounded-md shadow-md"
+                        />
+                        <div className="flex space-x-4">
+                            <button
+                                onClick={handleUpdateTask}
+                                className="bg-green-500 text-white p-2 rounded-md shadow-md hover:bg-green-600 transition duration-300"
+                            >
+                                Update
+                            </button>
+                            <button
+                                onClick={() => setEditTask(null)}
+                                className="bg-gray-500 text-white p-2 rounded-md shadow-md hover:bg-gray-600 transition duration-300"
+                            >
+                                Close
+                            </button>
+                        </div>
+                    </div>
                 </div>
             )}
 
             {/* Payment History Section */}
-            <div className="payment-history">
-                <h3>Latest Payments</h3>
-                <ul>
+            <div className="mt-8 p-4 bg-orange-50 rounded-lg shadow-lg">
+                <h3 className="text-lg font-semibold bg-orange-50 text-gray-800 mb-4">Latest Payments</h3>
+                <ul className="space-y-5 bg-orange-50">
                     {paymentHistory.slice(0, 3).map((payment, index) => (
-                        <li key={index}>
-                            {payment.month} {payment.year}: {payment.amount} - {payment.transactionId}
+                        <li key={index} className="px-10 flex justify-between items-center bg-white p-3 rounded-md shadow-md">
+                            <div>
+                                <p>{payment.month} {payment.year}</p>
+                                <p className="text-sm text-gray-500">{payment.transactionId}</p>
+                            </div>
+                            <span className="font-semibold">{payment.amount}</span>
                         </li>
                     ))}
                 </ul>
                 <Link to="/payment-history">
-                    <button>See All Payments</button>
+                    <button className="mt-4 w-full bg-orange-600 text-white p-2 rounded-md shadow-md hover:bg-orange-700 transition duration-300">
+                        See All Payments
+                    </button>
                 </Link>
             </div>
         </div>

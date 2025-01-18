@@ -16,6 +16,7 @@ import AuthLayout from './components/Auth/AuthLayout';
 import Login from './components/Auth/Login';
 import Register from './components/Auth/Register';
 import Worksheet from './pages/Employee/Worksheet';
+import PaymentHistory from './pages/Employee/PaymentHistory';
 
 const router = createBrowserRouter([
   { // Home Page
@@ -64,6 +65,16 @@ const router = createBrowserRouter([
       <PrivateRoute>
         <Navbar />
         <Worksheet />
+        <Footer />
+      </PrivateRoute>
+    </div>,
+  },
+  { // EMPLOYEE Payment History
+    path: '/payment-history',
+    element: <div className='w-11/12 mx-auto'>
+      <PrivateRoute>
+        <Navbar />
+        <PaymentHistory />
         <Footer />
       </PrivateRoute>
     </div>,
