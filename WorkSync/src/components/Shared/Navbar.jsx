@@ -35,10 +35,10 @@ const Navbar = () => {
                         <ul tabIndex={0} className="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow">
                             {/* Common Profile option */}
                             <li>
-                                <a className="justify-between transition-transform duration-50 hover:scale-110">
+                                <Link to="/profile" className="justify-between transition-transform duration-50 hover:scale-110">
                                     Profile
                                     <span className="badge">New</span>
-                                </a>
+                                </Link>
                             </li>
 
                             {/* Conditional Links based on Role */}
