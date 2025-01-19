@@ -31,7 +31,7 @@ const Register = () => {
                         // Include the user type in the user data
                         const userData = { name, email, photoURL: photo, uid: user.uid, userType };
 
-                        // Send the data to the backend to store it in MongoDB
+                        // Always post to /users
                         fetch("http://localhost:5000/users", {
                             method: "POST",
                             headers: { "Content-Type": "application/json" },
@@ -40,11 +40,28 @@ const Register = () => {
                             .then(response => response.json())
                             .then(data => {
                                 console.log(data.message);
-                                navigate("/");  // Redirect to home ("/")
                             })
                             .catch(error => {
                                 console.error("Error:", error);
                                 setError({ ...error, backend: "Failed to register user." });
+                            });
+
+                        // Conditionally post to HRUsers or EmployeeUsers based on userType
+                        const userTypeRoute = userType === "hr" ? "/HRUsers" : "/EmployeeUsers";
+
+                        fetch(`http://localhost:5000${userTypeRoute}`, {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify(userData),
+                        })
+                            .then(response => response.json())
+                            .then(data => {
+                                console.log(`User added to ${userTypeRoute}:`, data.message);
+                                navigate("/");  // Redirect to home ("/")
+                            })
+                            .catch(error => {
+                                console.error("Error:", error);
+                                setError({ ...error, backend: `Failed to register user in ${userTypeRoute}.` });
                             });
                     })
                     .catch((err) => {

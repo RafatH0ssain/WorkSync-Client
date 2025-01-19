@@ -18,6 +18,12 @@ import Register from './components/Auth/Register';
 import Worksheet from './pages/Employee/Worksheet';
 import PaymentHistory from './pages/Employee/PaymentHistory';
 import { Outlet } from 'react-router-dom';
+import EmployeeDetails from './pages/HR/EmployeeDetails';
+import Progress from './pages/HR/Progress';
+import EmployeeList from './pages/HR/EmployeeList';
+import AllEmployeesList from './pages/Admin/AllEmployeeList';
+import Payroll from './pages/Admin/Payroll'
+import Profile from './pages/Profile';
 
 const RootLayout = () => {
   return (
@@ -71,6 +77,16 @@ const router = createBrowserRouter([
           },
         ],
       },
+      { // All users profile page
+        path: '/profile',
+        element: <div className='w-11/12 mx-auto'>
+          <PrivateRoute>
+            <Navbar />
+            <Profile />
+            <Footer />
+          </PrivateRoute>
+        </div >,
+      },
       { // EMPLOYEE Work-Sheet page
         path: '/work-sheet',
         element: <div className='w-11/12 mx-auto'>
@@ -87,6 +103,56 @@ const router = createBrowserRouter([
           <PrivateRoute>
             <Navbar />
             <PaymentHistory />
+            <Footer />
+          </PrivateRoute>
+        </div>,
+      },
+      { // HR Employee-List page
+        path: '/employee-list',
+        element: <div className='w-11/12 mx-auto'>
+          <PrivateRoute>
+            <Navbar />
+            <EmployeeList />
+            <Footer />
+          </PrivateRoute>
+        </div>,
+      },
+      { // HR Employee-details page
+        path: '/details/:id',
+        element: <div className='w-11/12 mx-auto'>
+          <PrivateRoute>
+            <Navbar />
+            <EmployeeDetails />
+            <Footer />
+          </PrivateRoute>
+        </div>,
+      },
+      { // HR Payment History
+        path: '/progress',
+        element: <div className='w-11/12 mx-auto'>
+          <PrivateRoute>
+            <Navbar />
+            <Progress />
+            <Footer />
+          </PrivateRoute>
+        </div>,
+      },
+      { // ADMIN All Employees page
+        path: '/all-employee-list',
+        element: <div className='w-11/12 mx-auto'>
+          <PrivateRoute>
+            <Navbar />
+            <AllEmployeesList />
+            <Footer />
+          </PrivateRoute>
+        </div>,
+      },
+      { // ADMIN Payroll Page
+        path: '/payroll',
+        element: <div className='w-11/12 mx-auto'>
+          <PrivateRoute>
+            <Navbar />
+            <Payroll />
             <Footer />
           </PrivateRoute>
         </div>,
