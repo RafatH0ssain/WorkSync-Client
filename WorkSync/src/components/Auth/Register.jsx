@@ -46,23 +46,31 @@ const Register = () => {
                                 setError({ ...error, backend: "Failed to register user." });
                             });
 
-                        // Conditionally post to HRUsers or EmployeeUsers based on userType
-                        const userTypeRoute = userType === "hr" ? "/HRUsers" : "/EmployeeUsers";
+                        // Conditionally post to HRUsers or EmployeeUsers based on userType, or skip for admin
+                        const userTypeRoute = userType === "hr" ? "/HRUsers" : userType === "employee" ? "/EmployeeUsers" : null;
 
-                        fetch(`http://localhost:5000${userTypeRoute}`, {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify(userData),
-                        })
-                            .then(response => response.json())
-                            .then(data => {
-                                console.log(`User added to ${userTypeRoute}:`, data.message);
-                                navigate("/");  // Redirect to home ("/")
+                        if (userType === "admin") {
+                            // If the user is an admin, skip the fetch request
+                            console.log("Admin detected, skipping user registration...");
+                            navigate("/");  // Redirect to home ("/")
+                        } else if (userTypeRoute) {
+                            fetch(`http://localhost:5000${userTypeRoute}`, {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify(userData),
                             })
-                            .catch(error => {
-                                console.error("Error:", error);
-                                setError({ ...error, backend: `Failed to register user in ${userTypeRoute}.` });
-                            });
+                                .then(response => response.json())
+                                .then(data => {
+                                    console.log(`User added to ${userTypeRoute}:`, data.message);
+                                    navigate("/");  // Redirect to home ("/")
+                                })
+                                .catch(error => {
+                                    console.error("Error:", error);
+                                    setError({ ...error, backend: `Failed to register user in ${userTypeRoute}.` });
+                                });
+                        } else {
+                            console.error("Invalid userType.");
+                        }
                     })
                     .catch((err) => {
                         console.log(err);
@@ -122,7 +130,6 @@ const Register = () => {
                         >
                             <option value="employee">Employee</option>
                             <option value="hr">HR</option>
-                            <option value="admin">Admin</option>
                         </select>
                     </div>
                     <div className="form-control mt-6">
