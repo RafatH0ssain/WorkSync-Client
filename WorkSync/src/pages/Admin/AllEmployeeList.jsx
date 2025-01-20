@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Search, ChevronDown, ChevronUp } from 'lucide-react';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const AllEmployeeList = () => {
     const [employees, setEmployees] = useState([]);
@@ -32,14 +34,31 @@ const AllEmployeeList = () => {
 
     const handleFireEmployee = async (employeeId) => {
         try {
-            await fetch(`http://localhost:5000/fire/${employeeId}`, {
+            const response = await fetch(`http://localhost:5000/fire/${employeeId}`, {
                 method: 'POST',
             });
-            setEmployees(employees.map(emp =>
-                emp._id === employeeId ? { ...emp, status: 'Fired' } : emp
-            ));
+            
+            const data = await response.json();
+            
+            if (response.ok) {
+                // Update the employees state with the new data
+                if (data.updatedUsers) {
+                    setEmployees(data.updatedUsers.filter(user => 
+                        user.userType && (user.userType === 'hr' || user.userType === 'employee')
+                    ));
+                }
+                
+                // Show success message
+                toast.success('Employee fired successfully');
+                
+                // Close the modal if it's open
+                setShowModal(false);
+            } else {
+                throw new Error(data.error || 'Failed to fire employee');
+            }
         } catch (err) {
-            console.error('Failed to fire employee', err);
+            console.error('Failed to fire employee:', err);
+            toast.error('Failed to fire employee');
         }
     };
 
@@ -195,9 +214,15 @@ const AllEmployeeList = () => {
                                         </span>
                                     </td>
                                     <td className="px-6 py-4">
-                                        <span className="px-3 py-1 text-sm rounded-full bg-green-100 text-green-800">
-                                            Active
-                                        </span>
+                                        {employee.status === 'fired' ? (
+                                            <span className="px-3 py-1 text-sm rounded-full bg-red-100 text-red-800">
+                                                Fired
+                                            </span>
+                                        ) : (
+                                            <span className="px-3 py-1 text-sm rounded-full bg-green-100 text-green-800">
+                                                Active
+                                            </span>
+                                        )}
                                     </td>
                                     <td className="px-6 py-4">
                                         {employee.userType !== 'hr' && (
@@ -237,7 +262,7 @@ const AllEmployeeList = () => {
                         <p className="text-lg">Are you sure you want to fire this employee?</p>
                         <button
                             className="bg-red-500 text-white py-2 px-4 rounded-lg mt-4"
-                            onClick={() => handleFireEmployee(selectedEmployee._id)}
+                            onClick={() => handleFireEmployee(selectedEmployee.uid)}
                         >
                             Yes, Fire
                         </button>
