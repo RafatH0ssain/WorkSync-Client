@@ -7,6 +7,8 @@ const AllEmployeeList = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [sortConfig, setSortConfig] = useState({ key: 'name', direction: 'asc' });
     const [error, setError] = useState(null);
+    const [selectedEmployee, setSelectedEmployee] = useState(null); // for firing
+    const [showModal, setShowModal] = useState(false); // modal visibility
 
     useEffect(() => {
         fetchEmployees();
@@ -25,6 +27,45 @@ const AllEmployeeList = () => {
         } catch (err) {
             setError('Failed to load users');
             setLoading(false);
+        }
+    };
+
+    const handleFireEmployee = async (employeeId) => {
+        try {
+            await fetch(`http://localhost:5000/fire/${employeeId}`, {
+                method: 'POST',
+            });
+            setEmployees(employees.map(emp =>
+                emp._id === employeeId ? { ...emp, status: 'Fired' } : emp
+            ));
+        } catch (err) {
+            console.error('Failed to fire employee', err);
+        }
+    };
+
+    const handleMakeHR = async (employeeId) => {
+        try {
+            await fetch(`http://localhost:5000/make-hr/${employeeId}`, {
+                method: 'POST',
+            });
+            setEmployees(employees.map(emp =>
+                emp._id === employeeId ? { ...emp, userType: 'hr' } : emp
+            ));
+        } catch (err) {
+            console.error('Failed to make employee HR', err);
+        }
+    };
+
+    const handleSalaryAdjustment = async (employeeId, newSalary) => {
+        try {
+            await fetch(`http://localhost:5000/adjust-salary/${employeeId}`, {
+                method: 'POST',
+                body: JSON.stringify({ salary: newSalary }),
+                headers: { 'Content-Type': 'application/json' },
+            });
+            // Update salary in the UI if needed
+        } catch (err) {
+            console.error('Failed to adjust salary', err);
         }
     };
 
@@ -159,15 +200,28 @@ const AllEmployeeList = () => {
                                         </span>
                                     </td>
                                     <td className="px-6 py-4">
-                                        <button className="text-blue-600 hover:text-blue-800 font-medium text-sm">
-                                            View Details
+                                        {employee.userType !== 'hr' && (
+                                            <button
+                                                className="text-blue-600 hover:text-blue-800 font-medium text-sm"
+                                                onClick={() => handleMakeHR(employee._id)}
+                                            >
+                                                Make HR
+                                            </button>
+                                        )}
+                                        <button
+                                            className="text-red-600 hover:text-red-800 font-medium text-sm ml-3"
+                                            onClick={() => {
+                                                setSelectedEmployee(employee); // Set the selected employee
+                                                setShowModal(true); // Show the modal
+                                            }}
+                                        >
+                                            Fire
                                         </button>
                                     </td>
                                 </tr>
                             ))}
                         </tbody>
                     </table>
-
                     {filteredEmployees.length === 0 && (
                         <div className="text-center py-8 text-gray-500">
                             No users found matching your search.
@@ -175,6 +229,27 @@ const AllEmployeeList = () => {
                     )}
                 </div>
             </div>
+
+            {/* Modal */}
+            {showModal && selectedEmployee && (
+                <div className="fixed inset-0 bg-gray-600 bg-opacity-50 z-50 flex justify-center items-center">
+                    <div className="bg-white p-6 rounded-lg">
+                        <p className="text-lg">Are you sure you want to fire this employee?</p>
+                        <button
+                            className="bg-red-500 text-white py-2 px-4 rounded-lg mt-4"
+                            onClick={() => handleFireEmployee(selectedEmployee._id)}
+                        >
+                            Yes, Fire
+                        </button>
+                        <button
+                            className="bg-gray-500 text-white py-2 px-4 rounded-lg mt-4 ml-2"
+                            onClick={() => setShowModal(false)}
+                        >
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
