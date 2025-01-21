@@ -1,10 +1,10 @@
-import { StrictMode } from 'react'
+import { StrictMode } from 'react';
 import * as ReactDOM from "react-dom/client";
 import {
   createBrowserRouter,
   RouterProvider,
 } from "react-router-dom";
-import '../public/index.css'
+import '../public/index.css';
 import Home from './pages/Home';
 import ErrorPage from './ErrorPage';
 import AuthProvider from './components/Auth/AuthProvider';
@@ -22,7 +22,7 @@ import EmployeeDetails from './pages/HR/EmployeeDetails';
 import Progress from './pages/HR/Progress';
 import EmployeeList from './pages/HR/EmployeeList';
 import AllEmployeesList from './pages/Admin/AllEmployeeList';
-import Payroll from './pages/Admin/Payroll'
+import Payroll from './pages/Admin/Payroll';
 import Profile from './pages/Profile';
 
 const RootLayout = () => {
@@ -118,7 +118,7 @@ const router = createBrowserRouter([
         </div>,
       },
       { // HR Employee-details page
-        path: '/details/:id',
+        path: '/details/:uid',
         element: <div className='w-11/12 mx-auto'>
           <PrivateRoute>
             <Navbar />
@@ -165,4 +165,4 @@ ReactDOM.createRoot(document.getElementById('root')).render(
   <StrictMode>
     <RouterProvider router={router} />
   </StrictMode>,
-)
+);

@@ -10,6 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@tanstack/react-query": "^4.36.1",
+    "@tanstack/react-table": "^8.20.6",
     "axios": "^1.7.9",
     "chart.js": "^4.4.7",
     "firebase": "^11.2.0",
