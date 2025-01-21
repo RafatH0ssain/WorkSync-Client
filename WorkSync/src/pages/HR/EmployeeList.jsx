@@ -1,8 +1,264 @@
+import React, { useState, useEffect } from 'react';
+import {
+    useReactTable,
+    getCoreRowModel,
+    getSortedRowModel,
+    flexRender,
+    createColumnHelper
+} from '@tanstack/react-table';
+import { useNavigate } from 'react-router-dom';
+import { ChevronUp, ChevronDown, Search, X, Check } from 'lucide-react';
+import { toast } from 'react-toastify';
+
 const EmployeeList = () => {
+    const [employees, setEmployees] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [showPayModal, setShowPayModal] = useState(false);
+    const [selectedEmployee, setSelectedEmployee] = useState(null);
+    const [paymentDetails, setPaymentDetails] = useState({ month: '', year: '' });
+    const navigate = useNavigate();
+
+    const columnHelper = createColumnHelper();
+
+    const fetchEmployees = async () => {
+        try {
+            const response = await fetch('http://localhost:5000/users');
+            if (!response.ok) throw new Error('Failed to fetch employees');
+            const data = await response.json();
+            const employeeData = data.filter(user => user.userType === 'employee' && user.status !== 'fired');
+            setEmployees(employeeData);
+        } catch (error) {
+            toast.error('Failed to fetch employees');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchEmployees();
+    }, []);
+
+    const handleVerificationToggle = async (employeeId, currentStatus) => {
+        try {
+            const response = await fetch(`http://localhost:5000/toggle-verification/${employeeId}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ isVerified: !currentStatus })
+            });
+
+            if (!response.ok) throw new Error('Failed to update verification');
+
+            setEmployees(employees.map(emp =>
+                emp._id === employeeId ? { ...emp, isVerified: !currentStatus } : emp
+            ));
+
+            toast.success('Verification status updated');
+        } catch (error) {
+            toast.error('Failed to update verification status');
+        }
+    };
+
+    const handlePaySubmit = async () => {
+        if (!selectedEmployee?.isVerified) {
+            toast.error('Cannot process payment for unverified employee');
+            return;
+        }
+
+        try {
+            const response = await fetch('http://localhost:5000/payment-requests', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    employeeId: selectedEmployee._id,
+                    employeeName: selectedEmployee.name,
+                    salary: selectedEmployee.salary,
+                    month: paymentDetails.month,
+                    year: paymentDetails.year,
+                    status: 'pending'
+                })
+            });
+
+            if (!response.ok) throw new Error('Failed to create payment request');
+
+            toast.success('Payment request created successfully');
+            setShowPayModal(false);
+            setSelectedEmployee(null);
+            setPaymentDetails({ month: '', year: '' });
+        } catch (error) {
+            toast.error('Failed to create payment request');
+        }
+    };
+
+    const columns = [
+        columnHelper.accessor('name', {
+            header: 'Name',
+            cell: info => (
+                <div className="flex items-center gap-3">
+                    <img
+                        src={info.row.original.photoURL || "/api/placeholder/32/32"}
+                        alt={info.getValue()}
+                        className="w-8 h-8 rounded-full"
+                    />
+                    <span>{info.getValue()}</span>
+                </div>
+            )
+        }),
+        columnHelper.accessor('email', {
+            header: 'Email'
+        }),
+        columnHelper.accessor('isVerified', {
+            header: 'Verified',
+            cell: info => (
+                <button
+                    onClick={() => handleVerificationToggle(info.row.original._id, info.getValue())}
+                    className={`p-1 rounded ${info.getValue() ? 'text-green-600' : 'text-red-600'}`}
+                >
+                    {info.getValue() ? <Check size={20} /> : <X size={20} />}
+                </button>
+            )
+        }),
+        columnHelper.accessor('bankAccount', {
+            header: 'Bank Account'
+        }),
+        columnHelper.accessor('salary', {
+            header: 'Salary',
+            cell: info => `$${info.getValue()?.toLocaleString() || 0}`
+        }),
+        columnHelper.accessor('actions', {
+            header: 'Actions',
+            cell: info => (
+                <div className="flex gap-2">
+                    <button
+                        onClick={() => {
+                            setSelectedEmployee(info.row.original);
+                            setShowPayModal(true);
+                        }}
+                        disabled={!info.row.original.isVerified}
+                        className={`px-3 py-1 rounded ${info.row.original.isVerified
+                                ? 'bg-orange-600 text-white hover:bg-orange-700'
+                                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                            }`}
+                    >
+                        Pay
+                    </button>
+                    <button
+                        onClick={() => navigate(`/details/${info.row.original.uid}`)}
+                        className="px-3 py-1 rounded bg-blue-600 text-white hover:bg-blue-700"
+                    >
+                        Details
+                    </button>
+                </div>
+            )
+        })
+    ];
+
+    const table = useReactTable({
+        data: employees,
+        columns,
+        getCoreRowModel: getCoreRowModel(),
+        getSortedRowModel: getSortedRowModel(),
+    });
+
+    if (loading) {
+        return (
+            <div className="flex justify-center items-center min-h-[400px]">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-600"></div>
+            </div>
+        );
+    }
+
     return (
-        <div>
+        <div className="sm:pt-20 p-6">
+            <h2 className="text-3xl font-bold underline text-center text-orange-600 mb-6">Employee Table</h2>
+
+            <div className="bg-white rounded-lg shadow-sm border">
+                <div className="overflow-x-auto">
+                    <table className="w-full">
+                        <thead className="bg-gray-50">
+                            <tr>
+                                {table.getFlatHeaders().map(header => (
+                                    <th
+                                        key={header.id}
+                                        className="px-6 py-3 text-left text-sm font-semibold text-gray-600"
+                                    >
+                                        {flexRender(
+                                            header.column.columnDef.header,
+                                            header.getContext()
+                                        )}
+                                    </th>
+                                ))}
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-200">
+                            {table.getRowModel().rows.map(row => (
+                                <tr key={row.id} className="hover:bg-gray-50">
+                                    {row.getVisibleCells().map(cell => (
+                                        <td key={cell.id} className="px-6 py-4 text-sm">
+                                            {flexRender(
+                                                cell.column.columnDef.cell,
+                                                cell.getContext()
+                                            )}
+                                        </td>
+                                    ))}
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            {/* Payment Modal */}
+            {showPayModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                    <div className="bg-white rounded-lg p-6 w-96">
+                        <h3 className="text-xl font-bold mb-4">Process Payment</h3>
+                        <div className="space-y-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700">Employee</label>
+                                <p className="mt-1">{selectedEmployee?.name}</p>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700">Salary</label>
+                                <p className="mt-1">${selectedEmployee?.salary?.toLocaleString()}</p>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700">Month</label>
+                                <input
+                                    type="text"
+                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500"
+                                    value={paymentDetails.month}
+                                    onChange={e => setPaymentDetails(prev => ({ ...prev, month: e.target.value }))}
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700">Year</label>
+                                <input
+                                    type="text"
+                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500"
+                                    value={paymentDetails.year}
+                                    onChange={e => setPaymentDetails(prev => ({ ...prev, year: e.target.value }))}
+                                />
+                            </div>
+                            <div className="flex justify-end gap-3 mt-6">
+                                <button
+                                    onClick={() => setShowPayModal(false)}
+                                    className="px-4 py-2 border rounded-md hover:bg-gray-50"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={handlePaySubmit}
+                                    className="px-4 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700"
+                                >
+                                    Submit Payment
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
-}
+};
 
 export default EmployeeList;
