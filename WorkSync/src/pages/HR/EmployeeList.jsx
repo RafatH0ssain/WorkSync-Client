@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import {
     useReactTable,
     getCoreRowModel,
@@ -7,26 +7,46 @@ import {
     createColumnHelper
 } from '@tanstack/react-table';
 import { useNavigate } from 'react-router-dom';
-import { ChevronUp, ChevronDown, Search, X, Check } from 'lucide-react';
+import { ChevronUp, ChevronDown, Search, X, Check, User } from 'lucide-react';
 import { toast } from 'react-toastify';
+import { AuthContext } from '../../components/Auth/AuthProvider';
 
 const EmployeeList = () => {
+    const { userDetails } = useContext(AuthContext);
     const [employees, setEmployees] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showPayModal, setShowPayModal] = useState(false);
     const [selectedEmployee, setSelectedEmployee] = useState(null);
-    const [paymentDetails, setPaymentDetails] = useState({ month: '', year: '' });
+    const [owedAmount, setOwedAmount] = useState(0);
+    const [worksheetEntries, setWorksheetEntries] = useState([]);
+    const [paymentDetails, setPaymentDetails] = useState({
+        month: new Date().toLocaleString('default', { month: 'long' }),
+        year: new Date().getFullYear().toString()
+    });
     const navigate = useNavigate();
-
     const columnHelper = createColumnHelper();
 
-    const fetchEmployees = async () => {
+    const fetchEmployeeData = async () => {
         try {
             const response = await fetch('http://localhost:5000/users');
             if (!response.ok) throw new Error('Failed to fetch employees');
             const data = await response.json();
-            const employeeData = data.filter(user => user.userType === 'employee' && user.status !== 'fired');
-            setEmployees(employeeData);
+            const employeeData = data.filter(user =>
+                user.userType === 'employee' && user.status !== 'fired'
+            );
+
+            // Fetch owed amounts for each employee
+            const employeesWithOwed = await Promise.all(employeeData.map(async (emp) => {
+                const owedResponse = await fetch(`http://localhost:5000/employee-owed/${emp.email}`);
+                const owedData = await owedResponse.json();
+                return {
+                    ...emp,
+                    totalOwed: owedData.totalOwed,
+                    totalHours: owedData.totalHours
+                };
+            }));
+
+            setEmployees(employeesWithOwed);
         } catch (error) {
             toast.error('Failed to fetch employees');
         } finally {
@@ -35,8 +55,36 @@ const EmployeeList = () => {
     };
 
     useEffect(() => {
-        fetchEmployees();
+        fetchEmployeeData();
     }, []);
+
+    const processPayment = async () => {
+        try {
+            const response = await fetch('http://localhost:5000/process-payment', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: selectedEmployee.email,
+                    amount: owedAmount,
+                    paidBy: userDetails.email,
+                    entries: worksheetEntries
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to process payment');
+            }
+
+            const responseData = await response.json();
+            console.log('Payment Response:', responseData); // Log the response data
+            toast.success('Payment processed successfully');
+            setShowPayModal(false);
+            fetchEmployeeData(); // Refresh the list
+        } catch (error) {
+            console.error('Error:', error); // Log the error to see what's going wrong
+            toast.error('Failed to process payment');
+        }
+    };
 
     const handleVerificationToggle = async (employeeId, currentStatus) => {
         try {
@@ -45,48 +93,42 @@ const EmployeeList = () => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ isVerified: !currentStatus })
             });
-
             if (!response.ok) throw new Error('Failed to update verification');
-
             setEmployees(employees.map(emp =>
                 emp._id === employeeId ? { ...emp, isVerified: !currentStatus } : emp
             ));
-
             toast.success('Verification status updated');
         } catch (error) {
             toast.error('Failed to update verification status');
         }
     };
 
-    const handlePaySubmit = async () => {
-        if (!selectedEmployee?.isVerified) {
-            toast.error('Cannot process payment for unverified employee');
-            return;
+    const ImageWithFallback = ({ src, alt }) => {
+        const [error, setError] = useState(false);
+        const handleError = () => {
+            setError(true);
+        };
+        if (error || !src) {
+            return (
+                <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
+                    <User size={20} className="text-gray-500" />
+                </div>
+            );
         }
+        return (
+            <img
+                src={src}
+                alt={alt}
+                onError={handleError}
+                className="w-8 h-8 rounded-full object-cover"
+            />
+        );
+    };
 
-        try {
-            const response = await fetch('http://localhost:5000/payment-requests', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    employeeId: selectedEmployee._id,
-                    employeeName: selectedEmployee.name,
-                    salary: selectedEmployee.salary,
-                    month: paymentDetails.month,
-                    year: paymentDetails.year,
-                    status: 'pending'
-                })
-            });
-
-            if (!response.ok) throw new Error('Failed to create payment request');
-
-            toast.success('Payment request created successfully');
-            setShowPayModal(false);
-            setSelectedEmployee(null);
-            setPaymentDetails({ month: '', year: '' });
-        } catch (error) {
-            toast.error('Failed to create payment request');
-        }
+    const handleOpenPaymentModal = (employee) => {
+        setSelectedEmployee(employee);
+        setOwedAmount(employee.totalOwed); // Make sure owedAmount is set when opening the modal
+        setShowPayModal(true);
     };
 
     const columns = [
@@ -94,10 +136,9 @@ const EmployeeList = () => {
             header: 'Name',
             cell: info => (
                 <div className="flex items-center gap-3">
-                    <img
-                        src={info.row.original.photoURL || "/api/placeholder/32/32"}
+                    <ImageWithFallback
+                        src={info.row.original.photoURL}
                         alt={info.getValue()}
-                        className="w-8 h-8 rounded-full"
                     />
                     <span>{info.getValue()}</span>
                 </div>
@@ -117,8 +158,17 @@ const EmployeeList = () => {
                 </button>
             )
         }),
+        columnHelper.accessor('totalOwed', {
+            header: 'Amount Owed',
+            cell: info => `$${info.getValue()?.toLocaleString() || '0'}`
+        }),
+        columnHelper.accessor('totalHours', {
+            header: 'Total Hours',
+            cell: info => `${info.getValue() || '0'} hours`
+        }),
         columnHelper.accessor('bankAccount', {
-            header: 'Bank Account'
+            header: 'Bank Account',
+            // cell: INFO OF TOTAL PAID FROM ADMINS SIDE
         }),
         columnHelper.accessor('salary', {
             header: 'Salary',
@@ -129,14 +179,11 @@ const EmployeeList = () => {
             cell: info => (
                 <div className="flex gap-2">
                     <button
-                        onClick={() => {
-                            setSelectedEmployee(info.row.original);
-                            setShowPayModal(true);
-                        }}
+                        onClick={() => handleOpenPaymentModal(info.row.original)}
                         disabled={!info.row.original.isVerified}
                         className={`px-3 py-1 rounded ${info.row.original.isVerified
-                                ? 'bg-orange-600 text-white hover:bg-orange-700'
-                                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                            ? 'bg-orange-600 text-white hover:bg-orange-700'
+                            : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                             }`}
                     >
                         Pay
@@ -218,26 +265,39 @@ const EmployeeList = () => {
                                 <p className="mt-1">{selectedEmployee?.name}</p>
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700">Salary</label>
-                                <p className="mt-1">${selectedEmployee?.salary?.toLocaleString()}</p>
+                                <label className="block text-sm font-medium text-gray-700">Amount Owed</label>
+                                <p className="mt-1">${owedAmount.toLocaleString()}</p>
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-gray-700">Month</label>
-                                <input
-                                    type="text"
+                                <select
                                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500"
                                     value={paymentDetails.month}
                                     onChange={e => setPaymentDetails(prev => ({ ...prev, month: e.target.value }))}
-                                />
+                                >
+                                    {[
+                                        'January', 'February', 'March', 'April',
+                                        'May', 'June', 'July', 'August',
+                                        'September', 'October', 'November', 'December'
+                                    ].map(month => (
+                                        <option key={month} value={month}>{month}</option>
+                                    ))}
+                                </select>
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-gray-700">Year</label>
-                                <input
-                                    type="text"
+                                <select
                                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500"
                                     value={paymentDetails.year}
                                     onChange={e => setPaymentDetails(prev => ({ ...prev, year: e.target.value }))}
-                                />
+                                >
+                                    {[...Array(5)].map((_, i) => {
+                                        const year = new Date().getFullYear() - 2 + i;
+                                        return (
+                                            <option key={year} value={year}>{year}</option>
+                                        );
+                                    })}
+                                </select>
                             </div>
                             <div className="flex justify-end gap-3 mt-6">
                                 <button
@@ -247,7 +307,7 @@ const EmployeeList = () => {
                                     Cancel
                                 </button>
                                 <button
-                                    onClick={handlePaySubmit}
+                                    onClick={processPayment}
                                     className="px-4 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700"
                                 >
                                     Submit Payment

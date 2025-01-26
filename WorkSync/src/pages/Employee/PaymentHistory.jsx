@@ -1,94 +1,81 @@
-import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import axios from 'axios';
+import React, { useState, useEffect, useContext } from 'react';
+import { AuthContext } from "../../components/Auth/AuthProvider";
 
 const PaymentHistory = () => {
-    const [paymentHistory, setPaymentHistory] = useState([]);
+    const [payments, setPayments] = useState([]);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState('');
-    const [page, setPage] = useState(1);
-    const [hasMore, setHasMore] = useState(true);
+    const { user } = useContext(AuthContext);
 
-    // Function to fetch payment history for logged-in employee
-    const fetchPaymentHistory = async () => {
+    useEffect(() => {
+        fetchPayments(currentPage);
+    }, [currentPage, user?.uid]);
+
+    const fetchPayments = async (page) => {
+        if (!user?.uid) return;
+        
         try {
-            setLoading(true);
-            const response = await axios.get(`/api/payments/history?page=${page}`);
-            const data = response.data;
-
-            if (data.length === 0) {
-                setHasMore(false);  // No more data to load
-            }
-
-            setPaymentHistory((prevHistory) => [...prevHistory, ...data]);
+            const response = await fetch(
+                `http://localhost:5000/payment-history/${user.uid}?page=${page}&limit=5`
+            );
+            const data = await response.json();
+            
+            setPayments(data.payments);
+            setTotalPages(data.totalPages);
+            setLoading(false);
         } catch (error) {
-            setError('Failed to fetch payment history');
-        } finally {
+            console.error("Error fetching payments:", error);
             setLoading(false);
         }
     };
 
-    // Load the payment history when the component mounts or the page changes
-    useEffect(() => {
-        fetchPaymentHistory();
-    }, [page]);
+    if (loading) {
+        return <div className="text-center py-6">Loading...</div>;
+    }
 
     return (
-        <div className="payment-history-container p-6 bg-gray-50 rounded-lg shadow-lg">
-            <h2 className="text-2xl font-bold text-center mb-4">Payment History</h2>
-
-            {/* Display error message if there's an issue fetching data */}
-            {error && <div className="text-red-500 text-center mb-4">{error}</div>}
-
-            {/* Payment History Table */}
-            <div className="overflow-x-auto bg-white rounded-lg shadow-lg p-4">
-                {paymentHistory.length === 0 ? (
-                    <div className="text-center py-6 text-gray-600 font-semibold">No payment history available.</div>
-                ) : (
-                    <table className="min-w-full table-auto border-collapse">
-                        <thead className="bg-orange-100 text-gray-800">
-                            <tr>
-                                <th className="py-3 px-6 text-left">Month, Year</th>
-                                <th className="py-3 px-6 text-left">Amount</th>
-                                <th className="py-3 px-6 text-left">Transaction Id</th>
+        <div className="max-w-6xl mx-auto mt-20 p-6">
+            <h2 className="text-2xl font-semibold mb-6">Payment History</h2>
+            
+            <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+                <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-orange-100">
+                        <tr>
+                            <th className="px-6 py-3 text-left text-gray-800">Month, Year</th>
+                            <th className="px-6 py-3 text-left text-gray-800">Amount</th>
+                            <th className="px-6 py-3 text-left text-gray-800">Transaction ID</th>
+                        </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200">
+                        {payments.map((payment) => (
+                            <tr key={payment._id} className="hover:bg-gray-50">
+                                <td className="px-6 py-4">{`${payment.month} ${payment.year}`}</td>
+                                <td className="px-6 py-4">${payment.amount.toLocaleString()}</td>
+                                <td className="px-6 py-4 text-sm text-gray-500">
+                                    {payment._id}
+                                </td>
                             </tr>
-                        </thead>
-                        <tbody>
-                            {paymentHistory.map((payment, index) => (
-                                <tr key={index} className="border-b hover:bg-gray-50">
-                                    <td className="py-3 px-6">{payment.month} {payment.year}</td>
-                                    <td className="py-3 px-6">{payment.amount}</td>
-                                    <td className="py-3 px-6">{payment.transactionId}</td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                )}
+                        ))}
+                    </tbody>
+                </table>
             </div>
 
-            {/* Pagination Controls */}
-            {hasMore && !loading && (
-                <div className="text-center mt-4">
+            {/* Pagination */}
+            <div className="flex justify-center mt-6 gap-2">
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
                     <button
-                        onClick={() => setPage(page + 1)}
-                        className="bg-orange-600 text-white py-2 px-4 rounded-lg hover:bg-orange-500"
+                        key={page}
+                        onClick={() => setCurrentPage(page)}
+                        className={`px-4 py-2 rounded ${
+                            currentPage === page
+                                ? 'bg-orange-600 text-white'
+                                : 'bg-gray-200 hover:bg-gray-300'
+                        }`}
                     >
-                        Load More
+                        {page}
                     </button>
-                </div>
-            )}
-
-            {loading && (
-                <div className="text-center mt-4 text-gray-500">Loading...</div>
-            )}
-
-            {/* Link to navigate to the employee's worksheet */}
-            <div className="mt-4 text-center">
-                <Link to="/work-sheet">
-                    <button className="bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-500">
-                        Go to Worksheet
-                    </button>
-                </Link>
+                ))}
             </div>
         </div>
     );
