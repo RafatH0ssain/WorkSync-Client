@@ -13,7 +13,7 @@ const Navbar = () => {
     const isAdmin = userDetails?.userType == "admin";
 
     return (
-        <div className="navbar bg-base-100 poppins-semibold pt-7">
+        <div className="navbar bg-white poppins-semibold pt-7">
             <div className="flex-1">
                 <img src={logoSvg} alt="website logo" className='w-7 sm:w-10 h-7 sm:h-10' />
                 <Link className="text-2xl sm:text-4xl pl-2 font-extrabold text-orange-600 hover:text-orange-700 transition-all duration-300" to='/'>WorkSync</Link>

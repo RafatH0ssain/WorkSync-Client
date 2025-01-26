@@ -37,20 +37,20 @@ const AllEmployeeList = () => {
             const response = await fetch(`http://localhost:5000/fire/${employeeId}`, {
                 method: 'POST',
             });
-            
+
             const data = await response.json();
-            
+
             if (response.ok) {
                 // Update the employees state with the new data
                 if (data.updatedUsers) {
-                    setEmployees(data.updatedUsers.filter(user => 
+                    setEmployees(data.updatedUsers.filter(user =>
                         user.userType && (user.userType === 'hr' || user.userType === 'employee')
                     ));
                 }
-                
+
                 // Show success message
                 toast.success('Employee fired successfully');
-                
+
                 // Close the modal if it's open
                 setShowModal(false);
             } else {
@@ -229,16 +229,17 @@ const AllEmployeeList = () => {
                                             <button
                                                 className="text-blue-600 hover:text-blue-800 font-medium text-sm"
                                                 onClick={() => handleMakeHR(employee._id)}
+                                                disabled={employee.status === 'fired'}
                                             >
                                                 Make HR
                                             </button>
                                         )}
                                         <button
-                                            className="text-red-600 hover:text-red-800 font-medium text-sm ml-3"
-                                            onClick={() => {
-                                                setSelectedEmployee(employee); // Set the selected employee
-                                                setShowModal(true); // Show the modal
+                                            className={"text-red-600 hover:text-red-800 font-medium text-sm ml-3"}
+                                            onClick={() => {setSelectedEmployee(employee); // Set the selected employee
+                                                    setShowModal(true); // Show the modal
                                             }}
+                                            disabled={employee.status === 'fired'}
                                         >
                                             Fire
                                         </button>
