@@ -1,4 +1,4 @@
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, redirect, useLocation, useNavigate } from "react-router-dom";
 import { AuthContext } from "./AuthProvider.jsx";
 import { useContext, useState } from "react";
 import { ToastContainer, toast } from 'react-toastify';
@@ -110,6 +110,7 @@ const Login = () => {
         } finally {
             setIsLoading(false);
         }
+        redirect('/');
     };
 
     return (

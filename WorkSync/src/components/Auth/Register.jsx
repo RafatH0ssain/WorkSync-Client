@@ -1,5 +1,5 @@
 import { useContext, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, redirect, useNavigate } from "react-router-dom";
 import { AuthContext } from "./AuthProvider";
 import SocialsLogin from "./SocialsLogin.jsx";
 
@@ -56,6 +56,7 @@ const Register = () => {
                 const errorMessage = error.message;
                 console.log(errorCode, errorMessage);
             });
+    redirect("/");
     };
 
     return (

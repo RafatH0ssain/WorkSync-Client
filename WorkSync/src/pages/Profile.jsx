@@ -30,7 +30,7 @@ const Profile = () => {
                         {/* Profile Picture Circle */}
                         <div className="absolute -top-16 left-6">
                             <div className="w-32 h-32 rounded-full bg-white p-2 shadow-lg transition-transform duration-300 group-hover:-translate-y-2">
-                                <div className="w-full h-full rounded-full bg-orange-100 flex items-center justify-center text-orange-600 group">
+                                <div className="w-full h-full rounded-full bg-gray-50 flex items-center justify-center text-orange-600 group">
                                     <UserIcon userType={userDetails?.userType} />
                                 </div>
                             </div>
@@ -41,12 +41,12 @@ const Profile = () => {
                             <h1 className="text-3xl font-bold text-gray-800 mb-2">
                                 {userDetails?.name || 'Anonymous'}
                             </h1>
-                            <div className="inline-block px-4 py-2 bg-orange-100 rounded-full text-orange-600 font-semibold mb-4 capitalize">
+                            <div className="inline-block px-4 py-2 bg-gray-50 rounded-full text-orange-600 font-semibold mb-4 capitalize">
                                 {userDetails?.userType || 'Employee'}
                             </div>
 
                             {/* User Details Grid */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+                            <div className="grid grid-cols-1 bg-gray-50 md:grid-cols-2 gap-6 mt-8">
                                 <DetailCard
                                     title="Email"
                                     value={userDetails?.email || 'N/A'}
@@ -81,7 +81,7 @@ const Profile = () => {
                 </div>
 
                 {/* Conditional Sections Based on User Type (Right side) */}
-                <div className="w-full md:w-1/2 flex flex-col shadow-xl border rounded-xl">
+                <div className="w-full md:w-1/2 flex bg-white flex-col shadow-xl border rounded-xl">
                     {/* Conditional Sections */}
                     {userDetails?.userType === 'employee' && <EmployeeVideoSection />}
                     {userDetails?.userType === 'hr' && <HRVideoSection />}
@@ -94,7 +94,7 @@ const Profile = () => {
 
 const DetailCard = ({ title, value, icon }) => (
     <div className="bg-gray-50 rounded-xl p-6 transition-all duration-300 hover:shadow-md hover:-translate-y-1">
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-4 bg-gray-50">
             <div className="text-orange-600">
                 {icon}
             </div>
