@@ -35,20 +35,29 @@ const EmployeeList = () => {
                 user.userType === 'employee' && user.status !== 'fired'
             );
 
-            // Fetch owed amounts for each employee
-            const employeesWithOwed = await Promise.all(employeeData.map(async (emp) => {
-                const owedResponse = await fetch(`http://localhost:5000/employee-owed/${emp.email}`);
-                const owedData = await owedResponse.json();
+            // Fetch detailed data for each employee
+            const employeesWithDetails = await Promise.all(employeeData.map(async (emp) => {
+                const employeeMetricsResponse = await fetch(`http://localhost:5000/employee-owed/${emp.email}`);
+                const employeeMetrics = await employeeMetricsResponse.json();
+
+                // Call the new endpoint to check for pending payments
+                const pendingPaymentsResponse = await fetch(`http://localhost:5000/check-pending-payment/${emp.email}`);
+                const pendingPayments = await pendingPaymentsResponse.json();
+
                 return {
                     ...emp,
-                    totalOwed: owedData.totalOwed,
-                    totalHours: owedData.totalHours
+                    totalOwed: employeeMetrics.totalOwed,
+                    totalHours: employeeMetrics.totalHours,
+                    totalPaid: employeeMetrics.totalPaid,
+                    salary: employeeMetrics.salary,
+                    hasPendingPayment: pendingPayments.hasPendingPayment,  // Use this value from the response
                 };
             }));
 
-            setEmployees(employeesWithOwed);
+            setEmployees(employeesWithDetails);
         } catch (error) {
             toast.error('Failed to fetch employees');
+            console.error('Error fetching employee data:', error);
         } finally {
             setLoading(false);
         }
@@ -67,7 +76,8 @@ const EmployeeList = () => {
                     email: selectedEmployee.email,
                     amount: owedAmount,
                     paidBy: userDetails.email,
-                    entries: worksheetEntries
+                    entries: worksheetEntries,
+                    status: 'pending'
                 })
             });
 
@@ -75,13 +85,11 @@ const EmployeeList = () => {
                 throw new Error('Failed to process payment');
             }
 
-            const responseData = await response.json();
-            console.log('Payment Response:', responseData); // Log the response data
             toast.success('Payment processed successfully');
             setShowPayModal(false);
-            fetchEmployeeData(); // Refresh the list
+            await fetchEmployeeData(); // Refresh the list
         } catch (error) {
-            console.error('Error:', error); // Log the error to see what's going wrong
+            console.error('Error:', error);
             toast.error('Failed to process payment');
         }
     };
@@ -127,7 +135,7 @@ const EmployeeList = () => {
 
     const handleOpenPaymentModal = (employee) => {
         setSelectedEmployee(employee);
-        setOwedAmount(employee.totalOwed); // Make sure owedAmount is set when opening the modal
+        setOwedAmount(employee.totalOwed);
         setShowPayModal(true);
     };
 
@@ -166,9 +174,9 @@ const EmployeeList = () => {
             header: 'Total Hours',
             cell: info => `${info.getValue() || '0'} hours`
         }),
-        columnHelper.accessor('bankAccount', {
-            header: 'Bank Account',
-            // cell: INFO OF TOTAL PAID FROM ADMINS SIDE
+        columnHelper.accessor('totalPaid', {
+            header: 'Total Paid',
+            cell: info => `$${info.getValue()?.toLocaleString() || '0'}`
         }),
         columnHelper.accessor('salary', {
             header: 'Salary',
@@ -176,27 +184,41 @@ const EmployeeList = () => {
         }),
         columnHelper.accessor('actions', {
             header: 'Actions',
-            cell: info => (
-                <div className="flex gap-2">
-                    <button
-                        onClick={() => handleOpenPaymentModal(info.row.original)}
-                        disabled={!info.row.original.isVerified}
-                        className={`px-3 py-1 rounded ${info.row.original.isVerified
-                            ? 'bg-orange-600 text-white hover:bg-orange-700'
-                            : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                            }`}
-                    >
-                        Pay
-                    </button>
-                    <button
-                        onClick={() => navigate(`/details/${info.row.original.uid}`)}
-                        className="px-3 py-1 rounded bg-blue-600 text-white hover:bg-blue-700"
-                    >
-                        Details
-                    </button>
-                </div>
-            )
+            cell: info => {
+                const totalOwed = info.row.original.totalOwed; // Ensure you're using the correct value for totalOwed
+
+                return (
+                    <div className="flex gap-2">
+                        <button
+                            onClick={() => handleOpenPaymentModal(info.row.original)}
+                            disabled={!info.row.original.isVerified || info.row.original.hasPendingPayment || totalOwed === 0} // Check if totalOwed is 0
+                            className={`px-3 py-1 rounded ${!info.row.original.isVerified || info.row.original.hasPendingPayment || totalOwed === 0
+                                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                                : 'bg-orange-600 text-white hover:bg-orange-700'
+                                }`}
+                            title={
+                                !info.row.original.isVerified
+                                    ? 'Employee not verified'
+                                    : info.row.original.hasPendingPayment
+                                        ? 'Payment pending approval'
+                                        : totalOwed === 0
+                                            ? 'No amount owed to process payment'
+                                            : 'Process payment'
+                            }
+                        >
+                            Pay
+                        </button>
+                        <button
+                            onClick={() => navigate(`/details/${info.row.original.uid}`)}
+                            className="px-3 py-1 rounded bg-blue-600 text-white hover:bg-blue-700"
+                        >
+                            Details
+                        </button>
+                    </div>
+                );
+            }
         })
+
     ];
 
     const table = useReactTable({
