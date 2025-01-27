@@ -4,53 +4,56 @@ import { toast } from 'react-toastify';
 const Payroll = () => {
     const [paymentRequests, setPaymentRequests] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [currentPage, setCurrentPage] = useState(1);
-    const [totalPages, setTotalPages] = useState(1);
-    const [totalEntries, setTotalEntries] = useState(0);
 
-    // Function to fetch payment history with pagination
-    const fetchPaymentRequests = async (page = 1) => {
-        setLoading(true);
+    // Fetch payment history from the backend
+    const fetchPaymentHistory = async () => {
         try {
-            const response = await fetch(`http://localhost:5000/payment-history/${'admin'}?page=${page}&limit=5`); // admin view
+            const response = await fetch(`http://localhost:5000/payment-history`);
             if (!response.ok) throw new Error('Failed to fetch payment history');
             const data = await response.json();
-
-            setPaymentRequests(data.payments);
-            setCurrentPage(data.currentPage);
-            setTotalPages(data.totalPages);
-            setTotalEntries(data.totalEntries);
+            console.log(data);
+            if (Array.isArray(data.payments) && data.payments.length > 0) {
+                setPaymentRequests(data.payments);
+            } else {
+                toast.error('No payment history found');
+            }
         } catch (error) {
-            toast.error('Failed to fetch payment requests');
+            toast.error('Failed to fetch payment history');
         } finally {
             setLoading(false);
         }
     };
 
     useEffect(() => {
-        fetchPaymentRequests(currentPage);
-    }, [currentPage]);
+        fetchPaymentHistory();
+    }, []);
 
-    // Handle payment approval or rejection by the admin
-    const handleApproval = async (requestId, newStatus) => {
+    // Handle payment approval/rejection
+    const handlePaymentApproval = async (paymentId, request) => {
         try {
-            const response = await fetch(`http://localhost:5000/approve-payment/${requestId}`, {
+            const paymentDate = new Date().toISOString(); // Get current date in ISO format
+            const response = await fetch(`http://localhost:5000/approve-payment/${paymentId}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ status: newStatus })
+                body: JSON.stringify({
+                    status: 'paid',
+                    paidDate: paymentDate,
+                }),
             });
 
-            if (!response.ok) throw new Error('Failed to approve/reject payment');
+            if (!response.ok) throw new Error('Failed to update payment status');
             const updatedRequest = await response.json();
 
-            // Update the state with the new payment status
-            setPaymentRequests(prev => prev.map(request =>
-                request._id === updatedRequest._id
-                    ? { ...request, status: updatedRequest.status }
-                    : request
-            ));
+            // Update the payment request status in state
+            setPaymentRequests(prev =>
+                prev.map(req =>
+                    req._id === updatedRequest._id
+                        ? { ...req, status: updatedRequest.status, paidDate: paymentDate }
+                        : req
+                )
+            );
 
-            toast.success(`Payment status updated to ${newStatus}`);
+            toast.success(`Payment successfully executed for ${request.name}`);
         } catch (error) {
             toast.error('Failed to update payment status');
         }
@@ -67,7 +70,6 @@ const Payroll = () => {
     return (
         <div className="sm:pt-20 p-6">
             <h2 className="text-3xl font-bold underline text-center text-orange-600 mb-6">Payroll</h2>
-
             <div className="bg-white rounded-lg shadow-sm border">
                 <div className="overflow-x-auto">
                     <table className="w-full">
@@ -77,8 +79,8 @@ const Payroll = () => {
                                 <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">Salary</th>
                                 <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">Month/Year</th>
                                 <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">Payment Date</th>
-                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">Payment Status</th>
                                 <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">Actions</th>
+                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">Approved By</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-200">
@@ -86,7 +88,9 @@ const Payroll = () => {
                                 <tr key={request._id} className="hover:bg-gray-50">
                                     <td className="px-6 py-4 text-sm">{request.email}</td>
                                     <td className="px-6 py-4 text-sm">${request.amount.toLocaleString()}</td>
-                                    <td className="px-6 py-4 text-sm">{new Date(request.paidDate).toLocaleDateString()}</td>
+                                    <td className="px-6 py-4 text-sm">
+                                        {new Date(request.paidDate).toLocaleDateString() || 'N/A'}
+                                    </td>
                                     <td className="px-6 py-4 text-sm">
                                         {request.status === 'paid' ? (
                                             <span className="text-green-600">Paid</span>
@@ -95,50 +99,20 @@ const Payroll = () => {
                                         )}
                                     </td>
                                     <td className="px-6 py-4 text-sm">
-                                        {request.status === 'pending' && (
-                                            <div>
-                                                <button
-                                                    onClick={() => handleApproval(request._id, 'paid')}
-                                                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 mr-2"
-                                                >
-                                                    Approve
-                                                </button>
-                                                <button
-                                                    onClick={() => handleApproval(request._id, 'pending')}
-                                                    className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700"
-                                                >
-                                                    Reject
-                                                </button>
-                                            </div>
+                                        {request.status !== 'paid' && (
+                                            <button
+                                                onClick={() => handlePaymentApproval(request._id, request)}
+                                                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                                            >
+                                                Pay
+                                            </button>
                                         )}
                                     </td>
+                                    <td>{request.paidBy}</td>
                                 </tr>
                             ))}
                         </tbody>
                     </table>
-                </div>
-
-                {/* Pagination Controls */}
-                <div className="flex justify-between items-center mt-4">
-                    <button
-                        onClick={() => setCurrentPage(Math.max(currentPage - 1, 1))}
-                        disabled={currentPage === 1}
-                        className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 disabled:opacity-50"
-                    >
-                        Previous
-                    </button>
-                    <div>
-                        <span className="text-sm font-semibold text-gray-600">
-                            Page {currentPage} of {totalPages}
-                        </span>
-                    </div>
-                    <button
-                        onClick={() => setCurrentPage(Math.min(currentPage + 1, totalPages))}
-                        disabled={currentPage === totalPages}
-                        className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 disabled:opacity-50"
-                    >
-                        Next
-                    </button>
                 </div>
             </div>
         </div>

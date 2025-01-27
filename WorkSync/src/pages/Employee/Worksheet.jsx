@@ -65,7 +65,6 @@ const Worksheet = () => {
                 body: JSON.stringify({
                     ...taskData,
                     userId: userDetails.uid,
-                    typeOfWork: taskData.typeOfWork,
                     email: user.email,
                 }),
             });
@@ -79,7 +78,7 @@ const Worksheet = () => {
                 date: new Date(data.entry.date),
             };
             setTasks([newTask, ...tasks]);
-            setTaskData({ task: "Sales", hoursWorked: "", date: new Date(), typeOfWork: "" });
+            setTaskData({ task: "Sales", hoursWorked: "", date: new Date()});
 
         } catch (error) {
             console.error("Error adding task:", error);
