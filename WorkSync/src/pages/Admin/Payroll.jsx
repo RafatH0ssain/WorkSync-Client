@@ -77,9 +77,9 @@ const Payroll = () => {
                             <tr>
                                 <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">Employee Name</th>
                                 <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">Salary</th>
-                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">Month/Year</th>
                                 <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">Payment Date</th>
                                 <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">Actions</th>
+                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600"></th>
                                 <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">Approved By</th>
                             </tr>
                         </thead>
@@ -108,7 +108,7 @@ const Payroll = () => {
                                             </button>
                                         )}
                                     </td>
-                                    <td>{request.paidBy}</td>
+                                    <td className='float-left'>{request.paidBy}</td>
                                 </tr>
                             ))}
                         </tbody>

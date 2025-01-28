@@ -25,18 +25,24 @@ const EmployeeDetails = () => {
                 if (!employeeResponse.ok) throw new Error('Failed to fetch employee details');
                 const employeeData = await employeeResponse.json();
                 setEmployee(employeeData);
-
+        
                 // Fetch salary history
-                const salaryResponse = await fetch(`http://localhost:5000/salary-history/${uid}`);
+                const salaryResponse = await fetch(`http://localhost:5000/payment-history/${employeeData.email}`); // Use employeeData.email for email
                 if (!salaryResponse.ok) throw new Error('Failed to fetch salary history');
                 const salaryData = await salaryResponse.json();
-                setSalaryHistory(salaryData);
+        
+                // Ensure salaryData.payments is an array and set it to salaryHistory
+                if (Array.isArray(salaryData.payments)) {
+                    setSalaryHistory(salaryData.payments);
+                } else {
+                    toast.error('No salary history found');
+                }
             } catch (error) {
                 toast.error('Failed to fetch employee details');
             } finally {
                 setLoading(false);
             }
-        };
+        };        
 
         fetchEmployeeDetails();
     }, [uid]);

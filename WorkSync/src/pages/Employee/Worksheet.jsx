@@ -25,16 +25,22 @@ const Worksheet = () => {
     // Add fetchPaymentHistory function
     const fetchPaymentHistory = async () => {
         try {
-            const response = await fetch(`http://localhost:5000/payments/${user.uid}`);
+            const response = await fetch(`http://localhost:5000/payment-historya/${user.email}`);
             const data = await response.json();
-            setPaymentHistory(data);
+    
+            if (Array.isArray(data.payments)) {
+                setPaymentHistory(data.payments);
+            } else {
+                console.error("Payment history is not an array");
+                setPaymentHistory([]); // Fallback to empty array if data is not an array
+            }
         } catch (error) {
             console.error("Error fetching payment history:", error);
             setPaymentHistory([]); // Set empty array on error
         } finally {
             setLoading(false);
         }
-    };
+    };    
 
     const fetchTasks = async () => {
         try {
@@ -78,7 +84,7 @@ const Worksheet = () => {
                 date: new Date(data.entry.date),
             };
             setTasks([newTask, ...tasks]);
-            setTaskData({ task: "Sales", hoursWorked: "", date: new Date()});
+            setTaskData({ task: "Sales", hoursWorked: "", date: new Date() });
 
         } catch (error) {
             console.error("Error adding task:", error);
@@ -101,11 +107,11 @@ const Worksheet = () => {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({...taskData, _id: editTask._id}),
+                body: JSON.stringify({ ...taskData, _id: editTask._id }),
             });
             if (!response.ok) throw new Error('Failed to update task');
             const updatedTasks = tasks.map(task =>
-                task._id === editTask._id ? { ...taskData} : task
+                task._id === editTask._id ? { ...taskData } : task
             );
             setTasks(updatedTasks);
             setEditTask(null);
@@ -294,11 +300,12 @@ const Worksheet = () => {
                     <ul className="space-y-5 bg-orange-50">
                         {paymentHistory.slice(0, 3).map((payment, index) => (
                             <li key={index} className="px-10 flex justify-between items-center bg-white p-3 rounded-md shadow-md">
+                                <span className="font-semibold">Approved by: {payment.paidBy}</span>
                                 <div>
                                     <p>{payment.month} {payment.year}</p>
                                     <p className="text-sm text-gray-500">{payment.transactionId}</p>
                                 </div>
-                                <span className="font-semibold">${payment.amount?.toFixed(2)}</span>
+                                <span className="font-semibold">Amount: ${payment.amount?.toFixed(2)}</span>
                             </li>
                         ))}
                     </ul>
