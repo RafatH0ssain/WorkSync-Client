@@ -145,7 +145,7 @@ const AllEmployeeList = () => {
     );
 
     return (
-        <div className="mt-6 mb-8 bg-white rounded-lg border shadow-sm">
+        <div className="mt-6 bg-white rounded-lg border shadow-sm">
             <div className="p-6">
                 <div className="mb-6">
                     <h2 className="text-2xl font-bold mb-4">Employee Management</h2>

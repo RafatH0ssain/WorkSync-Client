@@ -19,6 +19,7 @@ const Progress = () => {
                 const data = await response.json();
                 setWorksheets(data);
                 setFilteredWorksheets(data);
+                console.log(data);
 
                 // Extract unique employees
                 const uniqueEmployees = [...new Set(data.map(entry => entry.email))];
@@ -55,12 +56,12 @@ const Progress = () => {
     }, [selectedEmployee, selectedMonth, worksheets]);
 
     return (
-        <div className="p-6 min-h-screen bg-gray-100">
-            <div className="max-w-7xl mx-auto">
-                <h1 className="text-3xl font-bold mb-8 text-gray-800">Work Progress Tracker</h1>
+        <div className="p-6 min-h-screen bg-orange-100 rounded-xl">
+            <div className="max-w-7xl mx-auto pt-5 bg-orange-100">
+                <h1 className="text-3xl font-bold mb-8 text-gray-800 bg-orange-100">Work Progress Tracker</h1>
 
                 {/* Filter Controls */}
-                <div className="flex gap-4 mb-6">
+                <div className="flex gap-4 mb-6 bg-orange-100">
                     <select
                         className="w-full max-w-xs bg-white border border-gray-300 rounded-lg px-4 py-2"
                         value={selectedEmployee}
@@ -85,7 +86,7 @@ const Progress = () => {
                 </div>
 
                 {/* Worksheets Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 bg-orange-100">
                     {filteredWorksheets.map((worksheet) => (
                         <div
                             key={worksheet._id}
@@ -113,8 +114,7 @@ const Progress = () => {
                             </div>
 
                             <div className="mt-4">
-                                <h4 className="font-semibold text-gray-800 mb-2">Work Description:</h4>
-                                <p className="text-gray-600">{worksheet.workDescription}</p>
+                                <h4 className="font-semibold text-gray-800 mb-2">Work Description: <span className="text-gray-600">{worksheet.task}</span></h4>
                             </div>
                         </div>
                     ))}

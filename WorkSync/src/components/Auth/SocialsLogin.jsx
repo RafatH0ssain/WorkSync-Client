@@ -39,12 +39,10 @@ const SocialsLogin = () => {
     };
 
     return (
-        <div>
-            <div className="w-full space-y-2">
-                <button className="btn btn-outline btn-info" onClick={handleGoogleLogin}>
-                    <FaGoogle /> Google Authentication
-                </button>
-            </div>
+        <div className="w-full space-y-2">
+            <button className="btn btn-outline btn-info" onClick={handleGoogleLogin}>
+                <FaGoogle /> Google Authentication
+            </button>
         </div>
     );
 };
