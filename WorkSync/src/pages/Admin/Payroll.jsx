@@ -69,13 +69,13 @@ const Payroll = () => {
 
     return (
         <div className="sm:pt-20 p-6">
-            <h2 className="text-3xl font-bold underline text-center text-orange-600 mb-6">Payroll</h2>
+            <h2 className="text-3xl font-bold text-left text-black mb-6">Payroll</h2>
             <div className="bg-white rounded-lg shadow-sm border">
                 <div className="overflow-x-auto">
                     <table className="w-full">
                         <thead className="bg-gray-50">
                             <tr>
-                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">Employee Name</th>
+                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">Employee</th>
                                 <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">Salary</th>
                                 <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">Payment Date</th>
                                 <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">Actions</th>

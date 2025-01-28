@@ -237,18 +237,18 @@ const EmployeeList = () => {
     }
 
     return (
-        <div className="sm:pt-20 p-6">
-            <h2 className="text-3xl font-bold underline text-center text-orange-600 mb-6">Employee Table</h2>
+        <div className="p-6 py-10 bg-orange-100 rounded-lg w-full mx-auto">
+            <h2 className="text-3xl font-bold bg-orange-100 text-left text-black mb-6">Employee Table</h2>
 
-            <div className="bg-white rounded-lg shadow-sm border">
-                <div className="overflow-x-auto">
-                    <table className="w-full">
-                        <thead className="bg-gray-50">
-                            <tr>
+            <div className="bg-orange-100 rounded-lg shadow-sm border">
+                <div className="overflow-x-auto rounded-xl">
+                    <table className="w-full rounded-xl py-20">
+                        <thead className="bg-orange-50">
+                            <tr className='bg-orange-50'>
                                 {table.getFlatHeaders().map(header => (
                                     <th
                                         key={header.id}
-                                        className="px-6 py-3 text-left text-sm font-semibold text-gray-600"
+                                        className="px-6 py-3 text-left text-sm font-semibold bg-orange-50 text-gray-600"
                                     >
                                         {flexRender(
                                             header.column.columnDef.header,
@@ -260,7 +260,7 @@ const EmployeeList = () => {
                         </thead>
                         <tbody className="divide-y divide-gray-200">
                             {table.getRowModel().rows.map(row => (
-                                <tr key={row.id} className="hover:bg-gray-50">
+                                <tr key={row.id} className="hover:bg-gray-50 rounded-xl">
                                     {row.getVisibleCells().map(cell => (
                                         <td key={cell.id} className="px-6 py-4 text-sm">
                                             {flexRender(
