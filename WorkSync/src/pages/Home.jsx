@@ -4,7 +4,7 @@ const Home = () => {
     return (
         <div>
             {/* Banner */}
-            <div className="min-h-screen bg-base-200">
+            <div className="min-h-screen bg-white">
                 <div className="hero-content flex-col lg:flex-row-reverse">
                     <img
                         src={customerServiceGif}
