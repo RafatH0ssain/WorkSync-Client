@@ -28,7 +28,7 @@ const EmployeeList = () => {
 
     const fetchEmployeeData = async () => {
         try {
-            const response = await fetch('http://localhost:5000/users');
+            const response = await fetch('https://work-sync-server-eight.vercel.app/users');
             if (!response.ok) throw new Error('Failed to fetch employees');
             const data = await response.json();
             const employeeData = data.filter(user =>
@@ -37,11 +37,11 @@ const EmployeeList = () => {
 
             // Fetch detailed data for each employee
             const employeesWithDetails = await Promise.all(employeeData.map(async (emp) => {
-                const employeeMetricsResponse = await fetch(`http://localhost:5000/employee-owed/${emp.email}`);
+                const employeeMetricsResponse = await fetch(`https://work-sync-server-eight.vercel.app/employee-owed/${emp.email}`);
                 const employeeMetrics = await employeeMetricsResponse.json();
 
                 // Call the new endpoint to check for pending payments
-                const pendingPaymentsResponse = await fetch(`http://localhost:5000/check-pending-payment/${emp.email}`);
+                const pendingPaymentsResponse = await fetch(`https://work-sync-server-eight.vercel.app/check-pending-payment/${emp.email}`);
                 const pendingPayments = await pendingPaymentsResponse.json();
 
                 return {
@@ -69,7 +69,7 @@ const EmployeeList = () => {
 
     const processPayment = async () => {
         try {
-            const response = await fetch('http://localhost:5000/process-payment', {
+            const response = await fetch('https://work-sync-server-eight.vercel.app/process-payment', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -96,7 +96,7 @@ const EmployeeList = () => {
 
     const handleVerificationToggle = async (employeeId, currentStatus) => {
         try {
-            const response = await fetch(`http://localhost:5000/toggle-verification/${employeeId}`, {
+            const response = await fetch(`https://work-sync-server-eight.vercel.app/toggle-verification/${employeeId}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ isVerified: !currentStatus })

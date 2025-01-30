@@ -18,7 +18,7 @@ const SocialsLogin = () => {
             const credential = GoogleAuthProvider.credentialFromResult(result);
             const token = credential.accessToken;
             const user = result.user;
-            console.log('Google login success:', user.displayName);
+            // console.log('Google login success:', user.displayName);
 
             // Send user data to backend
             const userData = {
@@ -30,7 +30,7 @@ const SocialsLogin = () => {
             };
 
             // Send the data to your backend to store it in MongoDB
-            await axios.post('http://localhost:5000/users', userData);
+            await axios.post('https://work-sync-server-eight.vercel.app/users', userData);
             // After successful login and backend update, navigate to the home page
             navigate('/');  // Redirect to home ("/")
         } catch (error) {
@@ -39,8 +39,8 @@ const SocialsLogin = () => {
     };
 
     return (
-        <div className="w-full space-y-2">
-            <button className="btn btn-outline btn-info" onClick={handleGoogleLogin}>
+        <div className="space-y-2">
+            <button className="btn btn-outline btn-info mx-auto" onClick={handleGoogleLogin}>
                 <FaGoogle /> Google Authentication
             </button>
         </div>

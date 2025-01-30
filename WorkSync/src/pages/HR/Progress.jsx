@@ -12,14 +12,13 @@ const Progress = () => {
     useEffect(() => {
         const fetchWorksheets = async () => {
             try {
-                const response = await fetch('http://localhost:5000/worksheet');
+                const response = await fetch('https://work-sync-server-eight.vercel.app/worksheet');
                 if (!response.ok) {
                     throw new Error('Failed to fetch worksheets');
                 }
                 const data = await response.json();
                 setWorksheets(data);
                 setFilteredWorksheets(data);
-                console.log(data);
 
                 // Extract unique employees
                 const uniqueEmployees = [...new Set(data.map(entry => entry.email))];

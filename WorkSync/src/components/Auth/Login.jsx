@@ -1,10 +1,21 @@
-import { Link, redirect, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { AuthContext } from "./AuthProvider.jsx";
 import { useContext, useState } from "react";
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import SocialsLogin from "./SocialsLogin.jsx";
+import { toast } from 'react-toastify';
 import axios from 'axios';
+import SocialsLogin from './SocialsLogin.jsx'
+
+const BACKEND_URL = 'https://work-sync-server-eight.vercel.app';
+
+// Create axios instance with default config
+const api = axios.create({
+    baseURL: BACKEND_URL,
+    withCredentials: false,
+    headers: {
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-cache'
+    }
+});
 
 const Login = () => {
     const { userLogin, setUser, logOut } = useContext(AuthContext);
@@ -13,104 +24,79 @@ const Login = () => {
     const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(false);
 
+    const checkUserStatus = async (uid) => {
+        try {
+            const response = await api.get(`/check-user-status/${uid}`);
+            return response.data;
+        } catch (error) {
+            console.error('Error checking user status:', error);
+            if (error.response?.status === 403) {
+                throw new Error('CORS error: Not allowed to access the server');
+            }
+            throw error;
+        }
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setIsLoading(true);
-        const form = e.target;
-        const email = form.email.value;
-        const password = form.password.value;
+        setError({});
 
         try {
-            // First attempt to login with Firebase
+            const form = e.target;
+            const email = form.email.value;
+            const password = form.password.value;
+
+            // First login with Firebase
             const result = await userLogin(email, password);
-            const user = result.user;
+
+            if (!result?.user?.uid) {
+                throw new Error('No user ID received from Firebase');
+            }
 
             try {
-                // Check if the user exists in your backend
-                const statusResponse = await axios.get(`http://localhost:5000/check-user-status/${user.uid}`);
-                if (statusResponse.data.status === 'fired' || !statusResponse.data.status) {
-                    // If user is fired, show error and prevent login
-                    toast.error("Your access has been revoked. Please contact the administrator if you think this is a mistake.", {
-                        position: "top-center",
-                        autoClose: 5000,
-                        hideProgressBar: false,
-                        closeOnClick: true,
-                        pauseOnHover: true,
-                        draggable: true,
-                        progress: undefined,
-                    });
-                    // Sign out the user since they shouldn't be logged in
+                const statusData = await checkUserStatus(result.user.uid);
+
+                if (statusData.status === 'fired' || !statusData.status) {
                     await logOut();
                     setUser(null);
-                } else {
-                    // If user is not fired, proceed with login
-                    setUser(user);
-                    navigate(location?.state ? location.state : "/");
-                    toast.success("Successfully logged in!", {
-                        position: "top-right",
-                        autoClose: 3000
-                    });
+                    toast.error("Your access has been revoked. Please contact the administrator.");
+                    return;
                 }
+
+                // If everything is okay, proceed with login
+                setUser(result.user);
+                navigate(location?.state ? location.state : "/");
+                toast.success("Successfully logged in!");
             } catch (statusError) {
-                // Handle 404 error (user not found in MongoDB)
-                if (statusError.response?.status === 404) {
-                    await logOut();
-                    setUser(null);
-                    toast.error(
-                        <div>
-                            <h3 className="font-bold mb-2">Account Not Registered</h3>
-                            <p className="mb-2">This email exists in Firebase but is not registered in our system.</p>
-                            <div className="mt-2">
-                                <button 
-                                    onClick={() => {
-                                        toast.dismiss();
-                                        navigate('/auth/register');
-                                    }}
-                                    className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 mr-2"
-                                >
-                                    Register Now
-                                </button>
-                            </div>
-                        </div>,
-                        {
-                            position: "top-center",
-                            autoClose: false,
-                            hideProgressBar: true,
-                            closeOnClick: false,
-                            draggable: true,
-                            className: 'bg-white text-black',
-                        }
-                    );
+                // Handle status check errors
+                console.error('Status check error:', statusError);
+                if (statusError.message.includes('CORS')) {
+                    toast.error("Unable to connect to the server. Please try again later.");
                 } else {
-                    throw statusError; // Re-throw other errors to be caught by outer catch
+                    toast.error("Error verifying user status. Please try again.");
                 }
+                await logOut();
+                setUser(null);
             }
+
         } catch (err) {
-            // Handle Firebase and other errors
+            console.error('Login error:', err);
+
             let errorMessage = "An error occurred during login.";
             if (err.code === 'auth/user-not-found') {
-                errorMessage = "No user found with that email. Please check your email.";
+                errorMessage = "No user found with that email.";
             } else if (err.code === 'auth/wrong-password') {
-                errorMessage = "Incorrect password. Please try again.";
+                errorMessage = "Incorrect password.";
             } else if (err.response?.data?.error) {
                 errorMessage = err.response.data.error;
             }
-            
-            toast.error(errorMessage, {
-                position: "top-center",
-                autoClose: 5000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-            });
-            
-            setError({ ...error, login: err.code });
+
+            toast.error(errorMessage);
+            setError({ login: errorMessage });
         } finally {
             setIsLoading(false);
         }
-        redirect('/');
     };
 
     return (
@@ -164,7 +150,6 @@ const Login = () => {
             </div>
             <h2 className="text-black text-3xl font-extrabold pt-5 pb-10">OR</h2>
             <SocialsLogin />
-            <ToastContainer />
         </div>
     );
 }

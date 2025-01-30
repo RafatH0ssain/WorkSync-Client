@@ -18,7 +18,7 @@ const AllEmployeeList = () => {
 
     const fetchEmployees = async () => {
         try {
-            const response = await fetch('http://localhost:5000/users');
+            const response = await fetch('https://work-sync-server-eight.vercel.app/users');
             if (!response.ok) throw new Error('Failed to fetch users');
             const data = await response.json();
             const filteredData = data.filter(user =>
@@ -34,7 +34,7 @@ const AllEmployeeList = () => {
 
     const handleFireEmployee = async (employeeId) => {
         try {
-            const response = await fetch(`http://localhost:5000/fire/${employeeId}`, {
+            const response = await fetch(`https://work-sync-server-eight.vercel.app/fire/${employeeId}`, {
                 method: 'POST',
             });
 
@@ -64,7 +64,7 @@ const AllEmployeeList = () => {
 
     const handleMakeHR = async (employeeId) => {
         try {
-            await fetch(`http://localhost:5000/make-hr/${employeeId}`, {
+            await fetch(`https://work-sync-server-eight.vercel.app/make-hr/${employeeId}`, {
                 method: 'POST',
             });
             setEmployees(employees.map(emp =>
@@ -77,7 +77,7 @@ const AllEmployeeList = () => {
 
     const handleSalaryAdjustment = async (employeeId, newSalary) => {
         try {
-            await fetch(`http://localhost:5000/adjust-salary/${employeeId}`, {
+            await fetch(`https://work-sync-server-eight.vercel.app/adjust-salary/${employeeId}`, {
                 method: 'POST',
                 body: JSON.stringify({ salary: newSalary }),
                 headers: { 'Content-Type': 'application/json' },
