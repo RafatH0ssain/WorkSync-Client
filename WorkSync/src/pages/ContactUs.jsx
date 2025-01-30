@@ -19,7 +19,7 @@ const ContactUS = () => {
         setLoading(true);
 
         try {
-            const response = await fetch('http://localhost:5000/submit-query', {
+            const response = await fetch('https://work-sync-server-eight.vercel.app/submit-query', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

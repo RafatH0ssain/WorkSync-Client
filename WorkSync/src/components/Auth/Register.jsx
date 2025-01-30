@@ -32,15 +32,12 @@ const Register = () => {
                         const userData = { name, email, photoURL: photo, uid: user.uid, userType };
 
                         // Always post to /users
-                        fetch("http://localhost:5000/users", {
+                        fetch("https://work-sync-server-eight.vercel.app/users", {
                             method: "POST",
                             headers: { "Content-Type": "application/json" },
                             body: JSON.stringify(userData),
                         })
                             .then(response => response.json())
-                            .then(data => {
-                                console.log(data.message);
-                            })
                             .catch(error => {
                                 console.error("Error:", error);
                                 setError({ ...error, backend: "Failed to register user." });

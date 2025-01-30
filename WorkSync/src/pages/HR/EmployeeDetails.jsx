@@ -21,13 +21,13 @@ const EmployeeDetails = () => {
         const fetchEmployeeDetails = async () => {
             try {
                 // Fetch employee details
-                const employeeResponse = await fetch(`http://localhost:5000/users/${uid}`);
+                const employeeResponse = await fetch(`https://work-sync-server-eight.vercel.app/users/${uid}`);
                 if (!employeeResponse.ok) throw new Error('Failed to fetch employee details');
                 const employeeData = await employeeResponse.json();
                 setEmployee(employeeData);
         
                 // Fetch salary history
-                const salaryResponse = await fetch(`http://localhost:5000/payment-history/${employeeData.email}`); // Use employeeData.email for email
+                const salaryResponse = await fetch(`https://work-sync-server-eight.vercel.app/payment-history/${employeeData.email}`); // Use employeeData.email for email
                 if (!salaryResponse.ok) throw new Error('Failed to fetch salary history');
                 const salaryData = await salaryResponse.json();
         

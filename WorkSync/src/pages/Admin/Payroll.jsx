@@ -8,10 +8,9 @@ const Payroll = () => {
     // Fetch payment history from the backend
     const fetchPaymentHistory = async () => {
         try {
-            const response = await fetch(`http://localhost:5000/payment-history`);
+            const response = await fetch(`https://work-sync-server-eight.vercel.app/payment-history`);
             if (!response.ok) throw new Error('Failed to fetch payment history');
             const data = await response.json();
-            console.log(data);
             if (Array.isArray(data.payments) && data.payments.length > 0) {
                 setPaymentRequests(data.payments);
             } else {
@@ -32,7 +31,7 @@ const Payroll = () => {
     const handlePaymentApproval = async (paymentId, request) => {
         try {
             const paymentDate = new Date().toISOString(); // Get current date in ISO format
-            const response = await fetch(`http://localhost:5000/approve-payment/${paymentId}`, {
+            const response = await fetch(`https://work-sync-server-eight.vercel.app/approve-payment/${paymentId}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

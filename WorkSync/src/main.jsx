@@ -24,6 +24,7 @@ import EmployeeList from './pages/HR/EmployeeList';
 import AllEmployeesList from './pages/Admin/AllEmployeeList';
 import Payroll from './pages/Admin/Payroll';
 import Profile from './pages/Profile';
+import AboutUs from './pages/AboutUs';
 
 const RootLayout = () => {
   return (
@@ -54,6 +55,17 @@ const router = createBrowserRouter([
           <PrivateRoute>
             <Navbar />
             <ContactUs />
+            <Footer />
+          </PrivateRoute>
+        </div>,
+        errorElement: <ErrorPage />,
+      },
+      { // Contact Us Page
+        path: "/about-us",
+        element: <div className='w-11/12 mx-auto'>
+          <PrivateRoute>
+            <Navbar />
+            <AboutUs />
             <Footer />
           </PrivateRoute>
         </div>,

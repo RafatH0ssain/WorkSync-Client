@@ -25,7 +25,7 @@ const Worksheet = () => {
     // Add fetchPaymentHistory function
     const fetchPaymentHistory = async () => {
         try {
-            const response = await fetch(`http://localhost:5000/payment-historya/${user.email}`);
+            const response = await fetch(`https://work-sync-server-eight.vercel.app/payment-historya/${user.email}`);
             const data = await response.json();
     
             if (Array.isArray(data.payments)) {
@@ -44,9 +44,8 @@ const Worksheet = () => {
 
     const fetchTasks = async () => {
         try {
-            const response = await fetch(`http://localhost:5000/worksheet/${user.email}`);
+            const response = await fetch(`https://work-sync-server-eight.vercel.app/worksheet/${user.email}`);
             const data = await response.json();
-            console.log(response);
             // Convert date strings to Date objects
             const tasksWithDates = data.map(task => ({
                 ...task,
@@ -63,7 +62,7 @@ const Worksheet = () => {
     const handleAddTask = async () => {
         try {
             // Send task creation request
-            const response = await fetch('http://localhost:5000/worksheet', {
+            const response = await fetch('https://work-sync-server-eight.vercel.app/worksheet', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -102,7 +101,7 @@ const Worksheet = () => {
 
     const handleUpdateTask = async () => {
         try {
-            const response = await fetch(`http://localhost:5000/worksheet/${editTask._id}`, {
+            const response = await fetch(`https://work-sync-server-eight.vercel.app/worksheet/${editTask._id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -122,7 +121,7 @@ const Worksheet = () => {
 
     const handleDeleteTask = async (id) => {
         try {
-            const response = await fetch(`http://localhost:5000/worksheet/${id}`, {
+            const response = await fetch(`https://work-sync-server-eight.vercel.app/worksheet/${id}`, {
                 method: 'DELETE',
             });
             if (!response.ok) throw new Error('Failed to delete task');

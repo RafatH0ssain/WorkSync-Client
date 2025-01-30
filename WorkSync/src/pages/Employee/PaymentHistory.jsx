@@ -16,7 +16,7 @@ const PaymentHistory = () => {
         if (!user?.uid) return;
 
         try {
-            const response = await fetch(`http://localhost:5000/payment-historya/${user.email}`);
+            const response = await fetch(`https://work-sync-server-eight.vercel.app/payment-historya/${user.email}`);
             const data = await response.json();
 
             // Validate response structure
@@ -28,7 +28,6 @@ const PaymentHistory = () => {
             setPayments(data.payments);
             setTotalPages(Math.ceil(data.payments.length / 5));
             setLoading(false);
-            console.log(data);
         } catch (error) {
             console.error("Error fetching payments:", error);
             setLoading(false);

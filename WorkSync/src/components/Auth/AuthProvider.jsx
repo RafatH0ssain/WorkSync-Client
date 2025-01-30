@@ -4,9 +4,7 @@ import app from "../../firebaseConfig";
 import { useNavigate } from "react-router-dom";
 
 const auth = getAuth(app);
-
-// Assuming your MongoDB backend is running on localhost:5000
-const MONGO_URL = 'http://localhost:5000';
+const MONGO_URL = 'https://work-sync-server-eight.vercel.app/';
 
 export const AuthContext = createContext();
 
@@ -14,18 +12,18 @@ const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [userDetails, setUserDetails] = useState(null);
     const [loading, setLoading] = useState(true);
+    // const [authChecked, setAuthChecked] = useState(false);
     const navigate = useNavigate();
 
     const userLogin = async (email, password) => {
         setLoading(true);
         try {
             const result = await signInWithEmailAndPassword(auth, email, password);
+            console.log(result);
             return result;
         } catch (error) {
             console.error("Login error:", error);
             throw error;
-        } finally {
-            setLoading(false);
         }
     };
 
@@ -33,6 +31,7 @@ const AuthProvider = ({ children }) => {
         setLoading(true);
         try {
             const result = await createUserWithEmailAndPassword(auth, email, password);
+            console.log(result);
             return result;
         } catch (error) {
             console.error("Create user error:", error);
@@ -66,14 +65,13 @@ const AuthProvider = ({ children }) => {
     // Fetch user data from MongoDB
     const getUserDataFromDB = async (uid) => {
         try {
-            const response = await fetch(`${MONGO_URL}/users/${uid}`);
-            if (response.ok) {
-                const userData = await response.json();
-                // console.log("Fetched user data from DB:", userData);
-                return userData;
-            } else {
+            const response = await fetch(`${MONGO_URL}users/${uid}`);
+            if (!response.ok) {
                 throw new Error(`Error fetching user data: ${response.status}`);
             }
+            const userData = await response.json();
+            console.log(userData);
+            return userData;
         } catch (error) {
             console.error("Error fetching user data:", error);
             return null;
@@ -82,26 +80,25 @@ const AuthProvider = ({ children }) => {
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+            setLoading(true);
             try {
                 if (currentUser) {
-                    setUser(currentUser);
-
-                    // Fetch user data from MongoDB using the UID
+                    // Fetch user data from MongoDB
                     const userDoc = await getUserDataFromDB(currentUser.uid);
 
-                    // If user data is fetched successfully, set userDetails
                     if (userDoc) {
+                        setUser(currentUser);
                         setUserDetails({
                             email: currentUser.email,
-                            name: userDoc.name || "Anonymous",  // Use name from MongoDB
-                            userType: userDoc.userType || "employee", // Default to 'employee' if undefined
+                            name: userDoc.name || "Anonymous",
+                            userType: userDoc.userType || "employee",
+                            status: userDoc.status
                         });
                     } else {
-                        setUserDetails({
-                            email: currentUser.email,
-                            name: currentUser.displayName || "Anonymous",  // Fallback name
-                            userType: "employee", // Default to 'employee'
-                        });
+                        // If no MongoDB data, sign out the user
+                        await signOut(auth);
+                        setUser(null);
+                        setUserDetails(null);
                     }
                 } else {
                     setUser(null);
@@ -109,14 +106,19 @@ const AuthProvider = ({ children }) => {
                 }
             } catch (error) {
                 console.error("Error in auth state change:", error);
+                setUser(null);
+                setUserDetails(null);
             } finally {
                 setLoading(false);
+                // setAuthChecked(true);
             }
         });
-
         return () => unsubscribe();
     }, []);
 
+    // if (!authChecked) {
+    //     return <div>Initializing...</div>;
+    // }
 
     const authInfo = {
         user,
