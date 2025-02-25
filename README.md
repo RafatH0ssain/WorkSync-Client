@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # WorkSync
 ## Full-Stack Employee Management System
 **Tech Stack:** React.js | Node.js | MongoDB | Firebase | JWT | TanStack Table
@@ -56,3 +57,6 @@ Here are some key screenshots of the application:
   - Can verify employees, manage payroll, and track employee performance.
 - **Employee:**
   - Can log work hours, view their salary history, and submit updates.
+=======
+
+>>>>>>> 82d2f1f0509014e03841bef855c43a1dc5d17b54
