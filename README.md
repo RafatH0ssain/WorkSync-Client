@@ -42,8 +42,11 @@ WorkSync blends functionality with flexibility, making workforce management a br
 
 
 ## Demo
-[Live Demo](https://worksync-2ca3b.web.app){:target="_blank"}
+<a href="https://worksync-2ca3b.web.app" target="_blank">Live Demo</a>
 
+> **Note:**  
+> Users can only log in as an Employee.  
+> Hit me up if you'd like to see access as an HR or Admin.
 
 ## **Screenshots**
 
