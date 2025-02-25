@@ -4,9 +4,9 @@
 
 
 ## About WorkSync
-**WorkSync** is a full-stack web application designed to streamline employee management. With a focus on enhancing HR operations, this platform allows employees to log work hours, track salary history, and manage payroll, while HR and Admin users can oversee employee performance, salary payments, and other critical workflows.
+**WorkSync** is a **full-stack web application** designed to streamline **employee management**. With a focus on enhancing **HR operations**, this platform allows **employees** to log **work hours**, track **salary history**, and manage **payroll**, while **HR** and **Admin** users can oversee **employee performance**, **salary payments**, and other critical workflows.
 
-The platform supports role-based access for different user types, including Employees, HR Executives, and Admins, ensuring that each user has access to the appropriate resources and features based on their role.
+The platform supports **role-based access** for different user types, including **Employees**, **HR Executives**, and **Admins**, ensuring that each user has access to the appropriate resources and features based on their role.
 
 
 ## Technologies Used
@@ -99,7 +99,8 @@ Here are some key screenshots of the application:
 
 ## 🌟 Features & Roles: Powering WorkSync
 
-WorkSync brings a seamless employee management experience with tailored features and permissions for every role. Whether you're an Employee tracking your hours, an HR Executive managing payroll, or an Admin overseeing the entire system, WorkSync has you covered with intuitive tools and robust controls.
+**WorkSync** brings a seamless **employee management** experience with tailored features and permissions for every role. Whether you're an **Employee** tracking your hours, an **HR Executive** managing payroll, or an **Admin** overseeing the entire system, **WorkSync** has you covered with **intuitive tools** and **robust controls**.
+
 
 ### 👩‍💼 For Employees  
 Empower your workforce with tools to stay organized and informed:  
