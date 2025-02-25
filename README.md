@@ -45,54 +45,55 @@ WorkSync blends functionality with flexibility, making workforce management a br
 <a href="https://worksync-2ca3b.web.app" target="_blank">Live Demo</a>
 
 > **Note:**  
-> Users can only log in as an Employee.  
-> Hit me up if you'd like to see access as an HR or Admin.
+> Users can only log in as an Employee for security purposes.
+> Message me if you'd like to have access as an HR or Admin.
+
 
 ## **Screenshots**
 
 Here are some key screenshots of the application:
 
-### **HR Pages:**
-- **Employee Table**
-  ![HR Employee Table](path/to/hr-employee-table-screenshot.png)  
-  *HR View of Employee Table*
-
-- **Payroll Table**
-  ![HR Payroll Table](path/to/hr-payroll-table-screenshot.png)  
-  *HR View of Payroll Table*
-
-- **Employee Details**
-  ![HR Employee Details](path/to/hr-employee-details-screenshot.png)  
-  *HR View of Employee Details*
-
-- **Dashboard**
-  ![HR Dashboard](path/to/hr-dashboard-screenshot.png)  
-  *HR Dashboard*
-
 ### **Employee Pages:**
 - **Dashboard**
-  ![Employee Dashboard](path/to/employee-dashboard-screenshot.png)  
+  ![Employee Dashboard](./WorkSync/public/employee_dashboard.png)  
   *Employee Dashboard*
 
 - **Past Payments**
-  ![Employee Past Payments](path/to/employee-past-payments-screenshot.png)  
+  ![Employee Past Payments](./WorkSync/public/employee_past_payments.png)  
   *Employee View of Past Payments*
 
 - **Add Payment**
-  ![Employee Add Payment](path/to/employee-add-payment-screenshot.png)  
+  ![Employee Add Payment](./WorkSync/public/employee_add_payment.png)  
   *Employee Add Payment Request*
+
+### **HR Pages:**
+- **Dashboard**
+  ![HR Dashboard](./WorkSync/public/hr_dashboard.png)  
+  *HR Dashboard*
+
+- **Employee List**
+  ![HR Employee Table](./WorkSync/public/hr_employee_list.png)  
+  *HR View of Employee Table*
+
+- **Payroll**
+  ![HR Payroll Table](./WorkSync/public/hr_payroll_info.png)  
+  *HR View of Payroll Table*
+
+- **Employee Details**
+  ![HR Employee Details](./WorkSync/public/hr_employee_details.png)  
+  *HR View of Employee Details*
 
 ### **Admin Pages:**
 - **Dashboard**
-  ![Admin Dashboard](path/to/admin-dashboard-screenshot.png)  
+  ![Admin Dashboard](./WorkSync/public/admin_dashboard.png)  
   *Admin Dashboard*
 
 - **All Employees**
-  ![Admin All Employees](path/to/admin-all-employees-screenshot.png)  
+  ![Admin All Employees](./WorkSync/public/admin_all_employees.png)  
   *Admin View of All Employees*
 
 - **Payroll**
-  ![Admin Payroll](path/to/admin-payroll-screenshot.png)  
+  ![Admin Payroll](./WorkSync/public/admin_employee_payroll.png)  
   *Admin Payroll Management*
 
 
