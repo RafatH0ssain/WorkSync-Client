@@ -8,35 +8,6 @@
 
 The platform supports role-based access for different user types, including Employees, HR Executives, and Admins, ensuring that each user has access to the appropriate resources and features based on their role.
 
-## Features
-### For Employees
-- **Work Logs:** Employees can track and submit work hours, tasks, and dates.
-- **Salary History:** Employees can view their monthly salary payment history.
-- **Notifications:** Toast notifications for successful CRUD operations and login activities.
-
-### For HR Executives
-- **Employee Management:** HR can verify employees, pay salaries, and track performance.
-- **Payroll:** HR can manage the payroll system and monitor payment statuses for employees.
-
-### For Admins
-- **Employee Overview:** Admins can see all employees, including HRs, and make them HRs or fire them from the company.
-- **Salary Adjustments:** Admins have the ability to adjust the salary of employees (salary increase only).
-- **Payment Approval:** Admins can approve and execute employee salary payments.
-
-## Demo
-🔗 [Live Demo](https://worksync-2ca3b.web.app)
-
-## Screenshots
-Here are some key screenshots of the application:
-
-![Dashboard for Employees](path/to/dashboard-screenshot.png)  
-*Dashboard for Employees*
-
-![HR View of Employee Data](path/to/hr-view-screenshot.png)  
-*HR View of Employee Data*
-
-![Admin Employee Management](path/to/admin-management-screenshot.png)  
-*Admin Employee Management*
 
 ## Technologies Used
 - **Frontend:** React.js, TanStack Table, React Query
@@ -47,28 +18,104 @@ Here are some key screenshots of the application:
 - **Security:** JWT (JSON Web Token) for role-based authentication
 - **Notifications:** SweetAlert & Toast for user-friendly notifications
 
-## **Roles and Permissions**
 
-- **Admin:**
-  - Can manage employee data, salaries, and approve payments.
-  - Can create or remove HR users.
-  - Can see a list of all employees and their respective roles.
-  - Can promote regular employees to HR status.
-  - Can ban or remove any employee or HR from the platform.
-  - Can accept or decline the payment requests forwarded by the HR.
-  - Can confirm payments after HR approval and process payouts.
-  - Has access to search and filter employees by name or role.
+## 🔐 Roles & Permissions at a Glance  
+Here’s how power is distributed in WorkSync:  
 
-- **HR:**
-  - Can see the entire list of employees, including their details and roles.
-  - Can process payment requests submitted by employees.
-  - Can accept or decline payment requests from employees, forwarding the accepted requests to the Admin for final approval.
-  - Can view the work progress of all employees, including details about the different types of tasks, the times worked, and their completion dates.
-  - Can see the salary history of each employee by clicking on their details.
-  
-- **Employee:**
-  - Can log their work hours along with the type of tasks they performed and the date on which the tasks were completed.
-  - Can submit payment requests for their work hours, which will then be reviewed by the HR.
-  - Can view their payment history, including the latest payments and all past payments.
-  - When logging in with an email account (e.g., Google authentication), the user is assigned the Employee role by default.
-  - Can see the status of their payment requests as they are reviewed by HR and approved by Admin.
+- **Admin:**  
+  - Manages employee data, salaries, and payments.  
+  - Creates/removes HRs, bans users, and promotes employees.  
+  - Approves/denies payment requests and processes payouts.  
+  - Full search, filter, and overview capabilities.  
+
+- **HR:**  
+  - Verifies employees and tracks their work progress.  
+  - Manages payroll—processes, approves, or declines requests.  
+  - Views employee lists, details, and salary histories.  
+
+- **Employee:**  
+  - Logs hours, tasks, and dates; submits payment requests.  
+  - Tracks payment history and request statuses.  
+  - Starts with default Employee role via email/Google login.  
+
+WorkSync blends functionality with flexibility, making workforce management a breeze for everyone involved. Ready to dive in?
+
+
+## Demo
+[Live Demo](https://worksync-2ca3b.web.app){:target="_blank"}
+
+
+## **Screenshots**
+
+Here are some key screenshots of the application:
+
+### **HR Pages:**
+- **Employee Table**
+  ![HR Employee Table](path/to/hr-employee-table-screenshot.png)  
+  *HR View of Employee Table*
+
+- **Payroll Table**
+  ![HR Payroll Table](path/to/hr-payroll-table-screenshot.png)  
+  *HR View of Payroll Table*
+
+- **Employee Details**
+  ![HR Employee Details](path/to/hr-employee-details-screenshot.png)  
+  *HR View of Employee Details*
+
+- **Dashboard**
+  ![HR Dashboard](path/to/hr-dashboard-screenshot.png)  
+  *HR Dashboard*
+
+### **Employee Pages:**
+- **Dashboard**
+  ![Employee Dashboard](path/to/employee-dashboard-screenshot.png)  
+  *Employee Dashboard*
+
+- **Past Payments**
+  ![Employee Past Payments](path/to/employee-past-payments-screenshot.png)  
+  *Employee View of Past Payments*
+
+- **Add Payment**
+  ![Employee Add Payment](path/to/employee-add-payment-screenshot.png)  
+  *Employee Add Payment Request*
+
+### **Admin Pages:**
+- **Dashboard**
+  ![Admin Dashboard](path/to/admin-dashboard-screenshot.png)  
+  *Admin Dashboard*
+
+- **All Employees**
+  ![Admin All Employees](path/to/admin-all-employees-screenshot.png)  
+  *Admin View of All Employees*
+
+- **Payroll**
+  ![Admin Payroll](path/to/admin-payroll-screenshot.png)  
+  *Admin Payroll Management*
+
+
+## 🌟 Features & Roles: Powering WorkSync
+
+WorkSync brings a seamless employee management experience with tailored features and permissions for every role. Whether you're an Employee tracking your hours, an HR Executive managing payroll, or an Admin overseeing the entire system, WorkSync has you covered with intuitive tools and robust controls.
+
+### 👩‍💼 For Employees  
+Empower your workforce with tools to stay organized and informed:  
+- **Work Logs:** Track and submit work hours, task types, and completion dates with ease.  
+- **Salary History:** View your monthly payment history, including the latest and past payouts.  
+- **Payment Requests:** Submit requests for your work hours, monitor their status as HR reviews and Admin approves.  
+- **Notifications:** Get instant toast notifications for successful logins, updates, and CRUD operations.  
+- **Default Access:** Log in with Google or email, and you're automatically set as an Employee—ready to roll!
+
+### 👨‍💼 For HR Executives  
+Streamline payroll and performance tracking with HR-focused features:  
+- **Employee Management:** Verify employees, review their details, and monitor performance across tasks, hours, and completion dates.  
+- **Payroll Power:** Process payment requests, accept or decline them, and forward approved requests to Admin for final sign-off.  
+- **Full Visibility:** Access the entire employee list, dive into salary histories, and track work progress with a single click.  
+- **Oversight:** See who’s doing what, when, and how—keeping workflows smooth and efficient.
+
+### 👑 For Admins  
+Take command with unmatched control and oversight:  
+- **Employee Overview:** View all employees (including HRs), search or filter by name/role, and manage their fates—promote to HR, adjust salaries, or remove them entirely.  
+- **Salary Adjustments:** Boost employee salaries with precision (increases only).  
+- **Payment Mastery:** Review HR-forwarded payment requests, approve or decline, and execute payouts with final confirmation.  
+- **Role Management:** Create HR users, ban employees, or reshape the team as needed—all from one dashboard.  
+- **Total Access:** See every detail, from work logs to payment statuses, ensuring nothing slips through the cracks.
