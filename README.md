@@ -146,13 +146,13 @@ Take command with unmatched control and oversight:
 ```
 
 #### 📋 Get All Users
-**Endpoint:** `GET /users`
-**Description:** Get all non-admin users
-**Response:** Array of user objects
+**Endpoint:** `GET /users`  
+**Description:** Get all non-admin users  
+**Response:** Array of user objects  
 
 #### 📝 Register User
-**Endpoint:** `POST /users`
-**Body:**
+**Endpoint:** `POST /users`  
+**Body:**  
 ```json
 {
   "name": "string",
@@ -164,15 +164,15 @@ Take command with unmatched control and oversight:
 ```
 
 #### ⬆️ Promote to HR
-**Endpoint:** `POST /make-hr/:id`
-**Description:** Promote an employee to HR role
-**Params:** MongoDB document ID
+**Endpoint:** `POST /make-hr/:id`  
+**Description:** Promote an employee to HR role  
+**Params:** MongoDB document ID  
 
 ### ❓ Queries
 
 #### ✉️ Submit Query
-**Endpoint:** `POST /submit-query`
-**Body:**
+**Endpoint:** `POST /submit-query`  
+**Body:**  
 ```json
 {
   "heading": "string",
@@ -182,15 +182,15 @@ Take command with unmatched control and oversight:
 }
 ```
 
-#### 📨 Get Queries
-**Endpoint:** `GET /queries`
-**Query Params:** ?email=user@example.com
-**Response:** Array of query objects
+#### 📨 Get Queries 
+**Endpoint:** `GET /queries`  
+**Query Params:** ?email=user@example.com  
+**Response:** Array of query objects  
 
 ### 📅 Worksheet Management
 #### ➕ Create Worksheet Entry
-**Endpoint:** `POST /worksheet`
-**Body:**
+**Endpoint:** `POST /worksheet`  
+**Body:**  
 ```json
 {
   "email": "string",
@@ -200,13 +200,13 @@ Take command with unmatched control and oversight:
 ```
 
 #### 📂 Get Worksheet Entries
-**Endpoint:** `GET /worksheet/:email`
-**Response:** Array of worksheet entries for specified user
+**Endpoint:** `GET /worksheet/:email`  
+**Response:** Array of worksheet entries for specified user  
 
 ### 💰 Payments
 #### 💸 Process Payment
-**Endpoint:** `POST /process-payment`
-**Body:**
+**Endpoint:** `POST /process-payment`  
+**Body:**  
 ```json
 {
   "email": "string",
@@ -217,8 +217,8 @@ Take command with unmatched control and oversight:
 ```
 
 #### 📊 Get Payment History
-**Endpoint:** `GET /payment-history/:email`
-**Response:**
+**Endpoint:** `GET /payment-history/:email`  
+**Response:**  
 ```json
 {
   "payments": [
@@ -232,8 +232,8 @@ Take command with unmatched control and oversight:
 ```
 
 #### ⏳ Check Pending Payments
-**Endpoint:** `GET /check-pending-payment/:email`
-**Response:**
+**Endpoint:** `GET /check-pending-payment/:email`  
+**Response:**  
 ```json
 {
   "hasPendingPayment": "boolean",
@@ -243,16 +243,16 @@ Take command with unmatched control and oversight:
 
 ### 💼 Salary Management
 #### 📈 Adjust Salary
-**Endpoint:** `POST /adjust-salary/:id`
-**Params:** MongoDB document ID
-**Body:**
+**Endpoint:** `POST /adjust-salary/:id`  
+**Params:** MongoDB document ID  
+**Body:**  
 ```json
 { "salary": "number" }
 ```
 
 ### 📜 Get Salary History
-**Endpoint:** `GET /salary-history/:id`
-**Response:** Array of salary adjustment objects
+**Endpoint:** `GET /salary-history/:id`  
+**Response:** Array of salary adjustment objects  
 
 
 ## 📬 Contact
