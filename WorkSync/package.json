@@ -1,7 +1,8 @@
 {
-  "name": "worksync",
+  "name": "worksync-client",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
+  "description": "React client for WorkSync, a role-based employee management app",
   "type": "module",
   "scripts": {
     "dev": "vite",

@@ -1,140 +1,94 @@
-# WorkSync
-## Full-Stack Employee Management System
-**Tech Stack:** React.js | Node.js | MongoDB | Firebase | JWT | TanStack Table
+# WorkSync Client
 
-
-## About WorkSync
-**WorkSync** is a **full-stack web application** designed to streamline **employee management**. With a focus on enhancing **HR operations**, this platform allows **employees** to log **work hours**, track **salary history**, and manage **payroll**, while **HR** and **Admin** users can oversee **employee performance**, **salary payments**, and other critical workflows.
-
-The platform supports **role-based access** for different user types, including **Employees**, **HR Executives**, and **Admins**, ensuring that each user has access to the appropriate resources and features based on their role.
-
-
-## Technologies Used
-- **Frontend:** React.js, TanStack Table, React Query
-- **Backend:** Node.js, Express.js
-- **Database:** MongoDB
-- **Authentication:** Firebase Authentication (Email/Password & Social Login)
-- **State Management:** React Context API
-- **Security:** JWT (JSON Web Token) for role-based authentication
-- **Notifications:** SweetAlert & Toast for user-friendly notifications
-
-
-## 🔐 Roles & Permissions at a Glance  
-Here’s how power is distributed in WorkSync:  
-
-- **Admin:**  
-  - Manages employee data, salaries, and payments.  
-  - Creates/removes HRs, bans users, and promotes employees.  
-  - Approves/denies payment requests and processes payouts.  
-  - Full search, filter, and overview capabilities.  
-
-- **HR:**  
-  - Verifies employees and tracks their work progress.  
-  - Manages payroll—processes, approves, or declines requests.  
-  - Views employee lists, details, and salary histories.  
-
-- **Employee:**  
-  - Logs hours, tasks, and dates; submits payment requests.  
-  - Tracks payment history and request statuses.  
-  - Starts with default Employee role via email/Google login.  
-
-WorkSync blends functionality with flexibility, making workforce management a breeze for everyone involved. Ready to dive in?
-
+React front end for WorkSync, a role-based employee management app. This repository is the client only. The Express/MongoDB API lives in [WorkSync-Server](https://github.com/RafatH0ssain/WorkSync-Server).
 
 ## Demo
-<a href="https://worksync-2ca3b.web.app" target="_blank">Live Demo</a>
 
-> **Note:**  
-> Users can only log in as an Employee for security purposes.
-> Message me if you'd like to have access as an HR or Admin.
+https://work.rafathossain.com
 
+Only Employee accounts can sign up on the public demo. Email me if you need HR or Admin access.
 
-## **Screenshots**
+## Quickstart
 
-Here are some key screenshots of the application:
+Prerequisites: Node.js 18 or newer, npm, and a Firebase project with Email/Password and Google auth enabled.
 
-### **Employee Pages:**
-- **Dashboard**
-  ![Employee Dashboard](./WorkSync/public/employee_dashboard.png)  
-  *Employee Dashboard*
+```bash
+git clone https://github.com/RafatH0ssain/WorkSync-Client.git
+cd WorkSync-Client/WorkSync
+cp .env.example .env
+# fill in the six VITE_FIREBASE_* values from your Firebase project settings
+npm install
+npm run dev
+```
 
-- **Past Payments**
-  ![Employee Past Payments](./WorkSync/public/employee_past_payments.png)  
-  *Employee View of Past Payments*
+Vite serves the app at http://localhost:5173.
 
-- **Add Payment**
-  ![Employee Add Payment](./WorkSync/public/employee_add_payment.png)  
-  *Employee Add Payment Request*
+Other scripts: `npm run build`, `npm run lint`, `npm run preview`.
 
-### **HR Pages:**
-- **Dashboard**
-  ![HR Dashboard](./WorkSync/public/hr_dashboard.png)  
-  *HR Dashboard*
+The client calls the deployed WorkSync-Server API by default. Firebase handles sign-in; the server stores users, work logs, and payroll records.
 
-- **Employee List**
-  ![HR Employee Table](./WorkSync/public/hr_employee_list.png)  
-  *HR View of Employee Table*
+## What each role can do
 
-- **Payroll**
-  ![HR Payroll Table](./WorkSync/public/hr_payroll_info.png)  
-  *HR View of Payroll Table*
+**Employee.** Log hours and tasks by date, submit payment requests, and review past payments and request status. New accounts start as Employee.
 
-- **Employee Details**
-  ![HR Employee Details](./WorkSync/public/hr_employee_details.png)  
-  *HR View of Employee Details*
+**HR.** Verify employees, review work logs and hours, process payment requests, and browse the employee list, details, and salary history.
 
-### **Admin Pages:**
-- **Dashboard**
-  ![Admin Dashboard](./WorkSync/public/admin_dashboard.png)  
-  *Admin Dashboard*
+**Admin.** Promote employees to HR, adjust salaries, ban users, and approve or decline payment requests before payout. Admin sees every employee and payroll record.
 
-- **All Employees**
-  ![Admin All Employees](./WorkSync/public/admin_all_employees.png)  
-  *Admin View of All Employees*
+## Screenshots
 
-- **Payroll**
-  ![Admin Payroll](./WorkSync/public/admin_employee_payroll.png)  
-  *Admin Payroll Management*
+### Employee
 
+- Dashboard
+  ![Employee Dashboard](./WorkSync/public/employee_dashboard.png)
 
-## 🌟 Features & Roles: Powering WorkSync
+- Past payments
+  ![Employee Past Payments](./WorkSync/public/employee_past_payments.png)
 
-**WorkSync** brings a seamless **employee management** experience with tailored features and permissions for every role. Whether you're an **Employee** tracking your hours, an **HR Executive** managing payroll, or an **Admin** overseeing the entire system, **WorkSync** has you covered with **intuitive tools** and **robust controls**.
+- Add payment request
+  ![Employee Add Payment](./WorkSync/public/employee_add_payment.png)
 
+### HR
 
-### 👩‍💼 For Employees  
-Empower your workforce with tools to stay organized and informed:  
-- **Work Logs:** Track and submit work hours, task types, and completion dates with ease.  
-- **Salary History:** View your monthly payment history, including the latest and past payouts.  
-- **Payment Requests:** Submit requests for your work hours, monitor their status as HR reviews and Admin approves.  
-- **Notifications:** Get instant toast notifications for successful logins, updates, and CRUD operations.  
-- **Default Access:** Log in with Google or email, and you're automatically set as an Employee—ready to roll!
+- Dashboard
+  ![HR Dashboard](./WorkSync/public/hr_dashboard.png)
 
-### 👨‍💼 For HR Executives  
-Streamline payroll and performance tracking with HR-focused features:  
-- **Employee Management:** Verify employees, review their details, and monitor performance across tasks, hours, and completion dates.  
-- **Payroll Power:** Process payment requests, accept or decline them, and forward approved requests to Admin for final sign-off.  
-- **Full Visibility:** Access the entire employee list, dive into salary histories, and track work progress with a single click.  
-- **Oversight:** See who’s doing what, when, and how—keeping workflows smooth and efficient.
+- Employee table
+  ![HR Employee Table](./WorkSync/public/hr_employee_list.png)
 
-### 👑 For Admins  
-Take command with unmatched control and oversight:  
-- **Employee Overview:** View all employees (including HRs), search or filter by name/role, and manage their fates—promote to HR, adjust salaries, or remove them entirely.  
-- **Salary Adjustments:** Boost employee salaries with precision (increases only).  
-- **Payment Mastery:** Review HR-forwarded payment requests, approve or decline, and execute payouts with final confirmation.  
-- **Role Management:** Create HR users, ban employees, or reshape the team as needed—all from one dashboard.  
-- **Total Access:** See every detail, from work logs to payment statuses, ensuring nothing slips through the cracks.
+- Payroll table
+  ![HR Payroll Table](./WorkSync/public/hr_payroll_info.png)
 
+- Employee details
+  ![HR Employee Details](./WorkSync/public/hr_employee_details.png)
 
-## Backend:
-[Github Link](https://github.com/RafatH0ssain/WorkSync-Server)
+### Admin
 
+- Dashboard
+  ![Admin Dashboard](./WorkSync/public/admin_dashboard.png)
 
-## 📬 Contact
-For any questions or support, please contact:
+- All employees
+  ![Admin All Employees](./WorkSync/public/admin_all_employees.png)
 
-📧 [Email](mailto:rafat.click.hossain@gmail.com)
+- Payroll
+  ![Admin Payroll](./WorkSync/public/admin_employee_payroll.png)
 
-👔 [LinkedIn](https://www.linkedin.com/in/muhammad-rafat-hossain/)
+## Tech
 
-**Let's connect! 🤝**
+- React 18 and Vite
+- Firebase Authentication (email/password and Google)
+- React Router
+- TanStack Table and React Query
+- Tailwind CSS and DaisyUI
+- Chart.js and Recharts
+- Axios and fetch for API calls
+
+## License
+
+MIT. See [LICENSE](./LICENSE).
+
+## Contact
+
+Email: [rafat.click.hossain@gmail.com](mailto:rafat.click.hossain@gmail.com)
+
+LinkedIn: [Muhammad Rafat Hossain](https://www.linkedin.com/in/muhammad-rafat-hossain/)
