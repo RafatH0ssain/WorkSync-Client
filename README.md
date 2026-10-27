@@ -4,7 +4,7 @@ React front end for WorkSync, a role-based employee management app. This reposit
 
 ## Demo
 
-https://work.rafathossain.com
+https://worksync-2ca3b.web.app
 
 Only Employee accounts can sign up on the public demo. Email me if you need HR or Admin access.
 
