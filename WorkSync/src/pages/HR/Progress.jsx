@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Calendar, Clock, User } from 'lucide-react';
+import { apiFetch } from '../../api';
 
 const Progress = () => {
     const [worksheets, setWorksheets] = useState([]);
@@ -7,24 +8,33 @@ const Progress = () => {
     const [selectedEmployee, setSelectedEmployee] = useState('');
     const [selectedMonth, setSelectedMonth] = useState('');
     const [filteredWorksheets, setFilteredWorksheets] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     // Get all worksheets
     useEffect(() => {
         const fetchWorksheets = async () => {
             try {
-                const response = await fetch('https://work-sync-server-eight.vercel.app/worksheet');
+                setError(null);
+                const response = await apiFetch('/worksheet');
                 if (!response.ok) {
                     throw new Error('Failed to fetch worksheets');
                 }
                 const data = await response.json();
+                if (!Array.isArray(data)) {
+                    throw new Error('Unexpected worksheet data');
+                }
                 setWorksheets(data);
                 setFilteredWorksheets(data);
 
                 // Extract unique employees
                 const uniqueEmployees = [...new Set(data.map(entry => entry.email))];
                 setEmployees(uniqueEmployees);
-            } catch (error) {
-                console.error('Error fetching worksheets:', error);
+            } catch (err) {
+                console.error('Error fetching worksheets:', err);
+                setError('Failed to load work records. Please try again.');
+            } finally {
+                setLoading(false);
             }
         };
         fetchWorksheets();
@@ -53,6 +63,22 @@ const Progress = () => {
 
         setFilteredWorksheets(filtered);
     }, [selectedEmployee, selectedMonth, worksheets]);
+
+    if (loading) {
+        return (
+            <div className="flex justify-center items-center min-h-[400px]">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-600"></div>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="text-center text-red-500 p-4">
+                {error}
+            </div>
+        );
+    }
 
     return (
         <div className="p-6 min-h-screen bg-orange-100 rounded-xl">

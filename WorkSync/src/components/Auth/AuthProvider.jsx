@@ -1,10 +1,9 @@
 import { createContext, useEffect, useState } from "react";
 import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut, createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import app from "../../firebaseConfig";
-import { useNavigate } from "react-router-dom";
+import { apiFetch } from "../../api";
 
 const auth = getAuth(app);
-const MONGO_URL = 'https://work-sync-server-eight.vercel.app/';
 
 export const AuthContext = createContext();
 
@@ -12,14 +11,11 @@ const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [userDetails, setUserDetails] = useState(null);
     const [loading, setLoading] = useState(true);
-    // const [authChecked, setAuthChecked] = useState(false);
-    const navigate = useNavigate();
 
     const userLogin = async (email, password) => {
         setLoading(true);
         try {
             const result = await signInWithEmailAndPassword(auth, email, password);
-            console.log(result);
             return result;
         } catch (error) {
             console.error("Login error:", error);
@@ -31,7 +27,6 @@ const AuthProvider = ({ children }) => {
         setLoading(true);
         try {
             const result = await createUserWithEmailAndPassword(auth, email, password);
-            console.log(result);
             return result;
         } catch (error) {
             console.error("Create user error:", error);
@@ -62,15 +57,17 @@ const AuthProvider = ({ children }) => {
         }
     };
 
-    // Fetch user data from MongoDB
+    // Fetch user data from the server's user record (MongoDB via the API).
+    // This is the only place a role comes from. The client never reads a role
+    // out of localStorage or a token claim: the server record is authoritative
+    // and every privileged action is re-checked server-side.
     const getUserDataFromDB = async (uid) => {
         try {
-            const response = await fetch(`${MONGO_URL}users/${uid}`);
+            const response = await apiFetch(`/users/${uid}`);
             if (!response.ok) {
                 throw new Error(`Error fetching user data: ${response.status}`);
             }
             const userData = await response.json();
-            console.log(userData);
             return userData;
         } catch (error) {
             console.error("Error fetching user data:", error);
@@ -83,7 +80,8 @@ const AuthProvider = ({ children }) => {
             setLoading(true);
             try {
                 if (currentUser) {
-                    // Fetch user data from MongoDB
+                    // Re-read the user record from the server on every auth
+                    // change so role and status always come from the server.
                     const userDoc = await getUserDataFromDB(currentUser.uid);
 
                     if (userDoc) {
@@ -110,15 +108,10 @@ const AuthProvider = ({ children }) => {
                 setUserDetails(null);
             } finally {
                 setLoading(false);
-                // setAuthChecked(true);
             }
         });
         return () => unsubscribe();
     }, []);
-
-    // if (!authChecked) {
-    //     return <div>Initializing...</div>;
-    // }
 
     const authInfo = {
         user,

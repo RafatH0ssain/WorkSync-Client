@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import {
     useReactTable,
     getCoreRowModel,
@@ -7,9 +7,10 @@ import {
     createColumnHelper
 } from '@tanstack/react-table';
 import { useNavigate } from 'react-router-dom';
-import { ChevronUp, ChevronDown, Search, X, Check, User } from 'lucide-react';
+import { X, Check, User } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { AuthContext } from '../../components/Auth/AuthProvider';
+import { apiFetch } from '../../api';
 
 const EmployeeList = () => {
     const { userDetails } = useContext(AuthContext);
@@ -18,7 +19,7 @@ const EmployeeList = () => {
     const [showPayModal, setShowPayModal] = useState(false);
     const [selectedEmployee, setSelectedEmployee] = useState(null);
     const [owedAmount, setOwedAmount] = useState(0);
-    const [worksheetEntries, setWorksheetEntries] = useState([]);
+    const [worksheetEntries] = useState([]);
     const [paymentDetails, setPaymentDetails] = useState({
         month: new Date().toLocaleString('default', { month: 'long' }),
         year: new Date().getFullYear().toString()
@@ -28,7 +29,7 @@ const EmployeeList = () => {
 
     const fetchEmployeeData = async () => {
         try {
-            const response = await fetch('https://work-sync-server-eight.vercel.app/users');
+            const response = await apiFetch('/users');
             if (!response.ok) throw new Error('Failed to fetch employees');
             const data = await response.json();
             const employeeData = data.filter(user =>
@@ -37,11 +38,11 @@ const EmployeeList = () => {
 
             // Fetch detailed data for each employee
             const employeesWithDetails = await Promise.all(employeeData.map(async (emp) => {
-                const employeeMetricsResponse = await fetch(`https://work-sync-server-eight.vercel.app/employee-owed/${emp.email}`);
+                const employeeMetricsResponse = await apiFetch(`/employee-owed/${emp.email}`);
                 const employeeMetrics = await employeeMetricsResponse.json();
 
                 // Call the new endpoint to check for pending payments
-                const pendingPaymentsResponse = await fetch(`https://work-sync-server-eight.vercel.app/check-pending-payment/${emp.email}`);
+                const pendingPaymentsResponse = await apiFetch(`/check-pending-payment/${emp.email}`);
                 const pendingPayments = await pendingPaymentsResponse.json();
 
                 return {
@@ -69,7 +70,7 @@ const EmployeeList = () => {
 
     const processPayment = async () => {
         try {
-            const response = await fetch('https://work-sync-server-eight.vercel.app/process-payment', {
+            const response = await apiFetch('/process-payment', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -96,7 +97,7 @@ const EmployeeList = () => {
 
     const handleVerificationToggle = async (employeeId, currentStatus) => {
         try {
-            const response = await fetch(`https://work-sync-server-eight.vercel.app/toggle-verification/${employeeId}`, {
+            const response = await apiFetch(`/toggle-verification/${employeeId}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ isVerified: !currentStatus })
@@ -106,7 +107,7 @@ const EmployeeList = () => {
                 emp._id === employeeId ? { ...emp, isVerified: !currentStatus } : emp
             ));
             toast.success('Verification status updated');
-        } catch (error) {
+        } catch {
             toast.error('Failed to update verification status');
         }
     };

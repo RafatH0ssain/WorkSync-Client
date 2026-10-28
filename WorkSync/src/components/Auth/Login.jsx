@@ -4,12 +4,11 @@ import { useContext, useState } from "react";
 import { toast } from 'react-toastify';
 import axios from 'axios';
 import SocialsLogin from './SocialsLogin.jsx'
-
-const BACKEND_URL = 'https://work-sync-server-eight.vercel.app';
+import { API_BASE } from "../../api";
 
 // Create axios instance with default config
 const api = axios.create({
-    baseURL: BACKEND_URL,
+    baseURL: API_BASE,
     withCredentials: false,
     headers: {
         'Content-Type': 'application/json',

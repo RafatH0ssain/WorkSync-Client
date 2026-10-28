@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import {
     BarChart,
@@ -10,6 +10,7 @@ import {
     ResponsiveContainer
 } from 'recharts';
 import { toast } from 'react-toastify';
+import { apiFetch } from '../../api';
 
 const EmployeeDetails = () => {
     const { uid } = useParams();
@@ -21,13 +22,13 @@ const EmployeeDetails = () => {
         const fetchEmployeeDetails = async () => {
             try {
                 // Fetch employee details
-                const employeeResponse = await fetch(`https://work-sync-server-eight.vercel.app/users/${uid}`);
+                const employeeResponse = await apiFetch(`/users/${uid}`);
                 if (!employeeResponse.ok) throw new Error('Failed to fetch employee details');
                 const employeeData = await employeeResponse.json();
                 setEmployee(employeeData);
         
                 // Fetch salary history
-                const salaryResponse = await fetch(`https://work-sync-server-eight.vercel.app/payment-history/${employeeData.email}`); // Use employeeData.email for email
+                const salaryResponse = await apiFetch(`/payment-history/${employeeData.email}`);
                 if (!salaryResponse.ok) throw new Error('Failed to fetch salary history');
                 const salaryData = await salaryResponse.json();
         
@@ -37,7 +38,7 @@ const EmployeeDetails = () => {
                 } else {
                     toast.error('No salary history found');
                 }
-            } catch (error) {
+            } catch {
                 toast.error('Failed to fetch employee details');
             } finally {
                 setLoading(false);

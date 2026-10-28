@@ -1,8 +1,10 @@
-import React, { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { Link } from "react-router-dom";
+import { toast } from "react-toastify";
 import { AuthContext } from "../../components/Auth/AuthProvider";
+import { apiFetch } from "../../api";
 
 const Worksheet = () => {
     const [tasks, setTasks] = useState([]);
@@ -14,6 +16,7 @@ const Worksheet = () => {
     });
     const [editTask, setEditTask] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
     const { user, userDetails } = useContext(AuthContext);
 
     useEffect(() => {
@@ -25,35 +28,40 @@ const Worksheet = () => {
     // Add fetchPaymentHistory function
     const fetchPaymentHistory = async () => {
         try {
-            const response = await fetch(`https://work-sync-server-eight.vercel.app/payment-historya/${user.email}`);
+            const response = await apiFetch(`/payment-historya/${user.email}`);
+            if (!response.ok) throw new Error(`Failed to fetch payment history: ${response.status}`);
             const data = await response.json();
-    
+
             if (Array.isArray(data.payments)) {
                 setPaymentHistory(data.payments);
             } else {
                 console.error("Payment history is not an array");
                 setPaymentHistory([]); // Fallback to empty array if data is not an array
             }
-        } catch (error) {
-            console.error("Error fetching payment history:", error);
+        } catch (err) {
+            console.error("Error fetching payment history:", err);
             setPaymentHistory([]); // Set empty array on error
+            setError("Failed to load payment history. Please try again.");
         } finally {
             setLoading(false);
         }
-    };    
+    };
 
     const fetchTasks = async () => {
         try {
-            const response = await fetch(`https://work-sync-server-eight.vercel.app/worksheet/${user.email}`);
+            const response = await apiFetch(`/worksheet/${user.email}`);
+            if (!response.ok) throw new Error(`Failed to fetch tasks: ${response.status}`);
             const data = await response.json();
+            if (!Array.isArray(data)) throw new Error("Unexpected worksheet data");
             // Convert date strings to Date objects
             const tasksWithDates = data.map(task => ({
                 ...task,
                 date: new Date(task.date)
             }));
             setTasks(tasksWithDates);
-        } catch (error) {
-            console.error("Error fetching tasks:", error);
+        } catch (err) {
+            console.error("Error fetching tasks:", err);
+            setError("Failed to load your worksheet. Please try again.");
         } finally {
             setLoading(false);
         }
@@ -62,7 +70,7 @@ const Worksheet = () => {
     const handleAddTask = async () => {
         try {
             // Send task creation request
-            const response = await fetch('https://work-sync-server-eight.vercel.app/worksheet', {
+            const response = await apiFetch('/worksheet', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -85,8 +93,9 @@ const Worksheet = () => {
             setTasks([newTask, ...tasks]);
             setTaskData({ task: "Sales", hoursWorked: "", date: new Date() });
 
-        } catch (error) {
-            console.error("Error adding task:", error);
+        } catch (err) {
+            console.error("Error adding task:", err);
+            toast.error("Failed to add task. Please try again.");
         }
     };
 
@@ -101,7 +110,7 @@ const Worksheet = () => {
 
     const handleUpdateTask = async () => {
         try {
-            const response = await fetch(`https://work-sync-server-eight.vercel.app/worksheet/${editTask._id}`, {
+            const response = await apiFetch(`/worksheet/${editTask._id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -114,21 +123,23 @@ const Worksheet = () => {
             );
             setTasks(updatedTasks);
             setEditTask(null);
-        } catch (error) {
-            console.error("Error updating task:", error);
+        } catch (err) {
+            console.error("Error updating task:", err);
+            toast.error("Failed to update task. Please try again.");
         }
     };
 
     const handleDeleteTask = async (id) => {
         try {
-            const response = await fetch(`https://work-sync-server-eight.vercel.app/worksheet/${id}`, {
+            const response = await apiFetch(`/worksheet/${id}`, {
                 method: 'DELETE',
             });
             if (!response.ok) throw new Error('Failed to delete task');
             const updatedTasks = tasks.filter(task => task._id !== id);
             setTasks(updatedTasks);
-        } catch (error) {
-            console.error("Error deleting task:", error);
+        } catch (err) {
+            console.error("Error deleting task:", err);
+            toast.error("Failed to delete task. Please try again.");
         }
     };
 
@@ -151,6 +162,12 @@ const Worksheet = () => {
                     Role: {userDetails?.userType || "Employee"}
                 </p>
             </div>
+
+            {error && (
+                <div className="mb-6 p-4 bg-red-50 text-red-600 rounded-lg">
+                    {error}
+                </div>
+            )}
 
             {/* Form for adding new tasks */}
             <div className="sm:flex block mb-6 bg-orange-50 p-4 rounded-lg w-full shadow-md">

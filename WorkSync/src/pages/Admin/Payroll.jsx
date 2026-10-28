@@ -1,14 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
+import { apiFetch } from '../../api';
 
 const Payroll = () => {
     const [paymentRequests, setPaymentRequests] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     // Fetch payment history from the backend
     const fetchPaymentHistory = async () => {
         try {
-            const response = await fetch(`https://work-sync-server-eight.vercel.app/payment-history`);
+            setError(null);
+            const response = await apiFetch('/payment-history');
             if (!response.ok) throw new Error('Failed to fetch payment history');
             const data = await response.json();
             if (Array.isArray(data.payments) && data.payments.length > 0) {
@@ -16,7 +19,9 @@ const Payroll = () => {
             } else {
                 toast.error('No payment history found');
             }
-        } catch (error) {
+        } catch (err) {
+            console.error('Error fetching payment history:', err);
+            setError('Failed to load payment history. Please try again.');
             toast.error('Failed to fetch payment history');
         } finally {
             setLoading(false);
@@ -31,7 +36,7 @@ const Payroll = () => {
     const handlePaymentApproval = async (paymentId, request) => {
         try {
             const paymentDate = new Date().toISOString(); // Get current date in ISO format
-            const response = await fetch(`https://work-sync-server-eight.vercel.app/approve-payment/${paymentId}`, {
+            const response = await apiFetch(`/approve-payment/${paymentId}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -53,7 +58,8 @@ const Payroll = () => {
             );
 
             toast.success(`Payment successfully executed for ${request.name}`);
-        } catch (error) {
+        } catch (err) {
+            console.error('Error updating payment status:', err);
             toast.error('Failed to update payment status');
         }
     };
@@ -62,6 +68,14 @@ const Payroll = () => {
         return (
             <div className="flex justify-center items-center min-h-[400px]">
                 <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-600"></div>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="text-center text-red-500 p-4">
+                {error}
             </div>
         );
     }

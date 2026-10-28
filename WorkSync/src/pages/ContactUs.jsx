@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { toast } from 'react-toastify';
-import { Mail, Phone, MapPin, Send } from 'lucide-react';
+import { Mail, Phone, MapPin } from 'lucide-react';
 import { AuthContext } from '../components/Auth/AuthProvider';
 import { useContext } from 'react';
+import { apiFetch } from '../api';
 
 const ContactUS = () => {
     const { userDetails } = useContext(AuthContext);
@@ -19,7 +20,7 @@ const ContactUS = () => {
         setLoading(true);
 
         try {
-            const response = await fetch('https://work-sync-server-eight.vercel.app/submit-query', {
+            const response = await apiFetch('/submit-query', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

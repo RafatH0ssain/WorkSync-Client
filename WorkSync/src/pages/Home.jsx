@@ -1,37 +1,47 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { ArrowRight, Star, Users, Calendar, Trophy, ChartBar } from 'lucide-react';
 import customerServiceGif from '../assets/customerServiceHelpGif.gif'
 import { Link } from 'react-router-dom';
+import { apiFetch } from '../api';
 
 const Home = () => {
-    const [topEmployee, setTopEmployee] = useState(null);
     const [stats, setStats] = useState({
         totalEmployees: 0,
         totalQueries: 0
     });
 
     useEffect(() => {
-        // Fetch total employees
-        fetch('https://work-sync-server-eight.vercel.app/users')
-            .then(res => res.json())
+        // Best-effort counters. Failures leave the stats at 0 instead of
+        // breaking the page.
+        apiFetch('/users')
+            .then(res => {
+                if (!res.ok) throw new Error(`Failed to fetch users: ${res.status}`);
+                return res.json();
+            })
             .then(data => {
+                if (!Array.isArray(data)) return;
                 setStats(prev => ({
                     ...prev,
                     totalEmployees: data.filter(user =>
                         user.userType === 'employee' && user.status !== 'fired'
                     ).length
                 }));
-            });
+            })
+            .catch(error => console.error('Error fetching employee stats:', error));
 
-        // Fetch all queries for stats
-        fetch('https://work-sync-server-eight.vercel.app/queries')
-            .then(res => res.json())
+        apiFetch('/queries')
+            .then(res => {
+                if (!res.ok) throw new Error(`Failed to fetch queries: ${res.status}`);
+                return res.json();
+            })
             .then(data => {
+                if (!Array.isArray(data)) return;
                 setStats(prev => ({
                     ...prev,
                     totalQueries: data.length
                 }));
-            });
+            })
+            .catch(error => console.error('Error fetching query stats:', error));
     }, []);
 
     return (

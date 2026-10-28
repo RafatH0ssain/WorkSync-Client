@@ -1,11 +1,13 @@
-import React, { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { AuthContext } from "../../components/Auth/AuthProvider";
+import { apiFetch } from '../../api';
 
 const PaymentHistory = () => {
     const [payments, setPayments] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
     const { user } = useContext(AuthContext);
 
     useEffect(() => {
@@ -16,7 +18,11 @@ const PaymentHistory = () => {
         if (!user?.uid) return;
 
         try {
-            const response = await fetch(`https://work-sync-server-eight.vercel.app/payment-historya/${user.email}`);
+            setError(null);
+            const response = await apiFetch(`/payment-historya/${user.email}`);
+            if (!response.ok) {
+                throw new Error(`Failed to fetch payments: ${response.status}`);
+            }
             const data = await response.json();
 
             // Validate response structure
@@ -27,9 +33,10 @@ const PaymentHistory = () => {
             // Set full payment data and calculate total pages based on the desired limit
             setPayments(data.payments);
             setTotalPages(Math.ceil(data.payments.length / 5));
-            setLoading(false);
-        } catch (error) {
-            console.error("Error fetching payments:", error);
+        } catch (err) {
+            console.error("Error fetching payments:", err);
+            setError("Failed to load payment history. Please try again.");
+        } finally {
             setLoading(false);
         }
     };
@@ -38,6 +45,10 @@ const PaymentHistory = () => {
 
     if (loading) {
         return <div className="text-center py-6">Loading...</div>;
+    }
+
+    if (error) {
+        return <div className="text-center text-red-500 p-4">{error}</div>;
     }
 
     return (
@@ -54,7 +65,7 @@ const PaymentHistory = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {payments.map((payment) => (
+                        {displayedPayments.map((payment) => (
                             <tr key={payment._id}>
                                 {/* Paid Date */}
                                 <td className="px-6 py-4">

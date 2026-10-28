@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Search, ChevronDown, ChevronUp } from 'lucide-react';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { apiFetch } from '../../api';
 
 const AllEmployeeList = () => {
     const [employees, setEmployees] = useState([]);
@@ -18,7 +19,7 @@ const AllEmployeeList = () => {
 
     const fetchEmployees = async () => {
         try {
-            const response = await fetch('https://work-sync-server-eight.vercel.app/users');
+            const response = await apiFetch('/users');
             if (!response.ok) throw new Error('Failed to fetch users');
             const data = await response.json();
             const filteredData = data.filter(user =>
@@ -26,7 +27,7 @@ const AllEmployeeList = () => {
             );
             setEmployees(filteredData);
             setLoading(false);
-        } catch (err) {
+        } catch {
             setError('Failed to load users');
             setLoading(false);
         }
@@ -34,7 +35,7 @@ const AllEmployeeList = () => {
 
     const handleFireEmployee = async (employeeId) => {
         try {
-            const response = await fetch(`https://work-sync-server-eight.vercel.app/fire/${employeeId}`, {
+            const response = await apiFetch(`/fire/${employeeId}`, {
                 method: 'POST',
             });
 
@@ -64,27 +65,32 @@ const AllEmployeeList = () => {
 
     const handleMakeHR = async (employeeId) => {
         try {
-            await fetch(`https://work-sync-server-eight.vercel.app/make-hr/${employeeId}`, {
+            const response = await apiFetch(`/make-hr/${employeeId}`, {
                 method: 'POST',
             });
+            if (!response.ok) throw new Error('Failed to make employee HR');
             setEmployees(employees.map(emp =>
                 emp._id === employeeId ? { ...emp, userType: 'hr' } : emp
             ));
+            toast.success('Employee promoted to HR');
         } catch (err) {
             console.error('Failed to make employee HR', err);
+            toast.error('Failed to make employee HR');
         }
     };
 
     const handleSalaryAdjustment = async (employeeId, newSalary) => {
         try {
-            await fetch(`https://work-sync-server-eight.vercel.app/adjust-salary/${employeeId}`, {
+            const response = await apiFetch(`/adjust-salary/${employeeId}`, {
                 method: 'POST',
                 body: JSON.stringify({ salary: newSalary }),
                 headers: { 'Content-Type': 'application/json' },
             });
+            if (!response.ok) throw new Error('Failed to adjust salary');
             // Update salary in the UI if needed
         } catch (err) {
             console.error('Failed to adjust salary', err);
+            toast.error('Failed to adjust salary');
         }
     };
 

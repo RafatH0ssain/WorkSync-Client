@@ -1,8 +1,8 @@
-import React from 'react';
 import { FaGoogle } from "react-icons/fa";
 import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { toast } from 'react-toastify';
+import { apiFetch } from '../../api';
 
 // Firebase provider for Google
 const googleProvider = new GoogleAuthProvider();
@@ -14,13 +14,11 @@ const SocialsLogin = () => {
     const handleGoogleLogin = async () => {
         try {
             const result = await signInWithPopup(auth, googleProvider);
-            // This gives you a Google Access Token.
-            const credential = GoogleAuthProvider.credentialFromResult(result);
-            const token = credential.accessToken;
             const user = result.user;
-            // console.log('Google login success:', user.displayName);
 
-            // Send user data to backend
+            // New sign-ins always start as employee. Roles change only through
+            // the server's admin-gated promotion endpoints; the server is the
+            // authorization boundary.
             const userData = {
                 name: user.displayName,
                 email: user.email,
@@ -29,12 +27,20 @@ const SocialsLogin = () => {
                 uid: user.uid,
             };
 
-            // Send the data to your backend to store it in MongoDB
-            await axios.post('https://work-sync-server-eight.vercel.app/users', userData);
-            // After successful login and backend update, navigate to the home page
-            navigate('/');  // Redirect to home ("/")
+            const response = await apiFetch('/users', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(userData),
+            });
+            // 400 means the server record already exists, which is expected
+            // for a returning user.
+            if (!response.ok && response.status !== 400) {
+                throw new Error('Failed to save the account on the server');
+            }
+            navigate('/');
         } catch (error) {
             console.error('Error during Google login:', error.message);
+            toast.error('Google sign-in failed. Please try again.');
         }
     };
 

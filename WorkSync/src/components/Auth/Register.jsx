@@ -1,15 +1,16 @@
 import { useContext, useState } from "react";
-import { Link, redirect, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 import { AuthContext } from "./AuthProvider";
 import SocialsLogin from "./SocialsLogin.jsx";
+import { apiFetch } from "../../api";
 
 const Register = () => {
     const { createUser, setUser, updateUserProfile } = useContext(AuthContext);
     const [error, setError] = useState({});
-    const [userType, setUserType] = useState("employee"); // Default is employee
     const navigate = useNavigate();
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         const form = new FormData(e.target);
         const name = form.get("name");
@@ -22,38 +23,34 @@ const Register = () => {
             return;
         }
 
-        createUser(email, password)
-            .then((result) => {
-                const user = result.user;
-                setUser(user);
-                updateUserProfile({ displayName: name, photoURL: photo })
-                    .then(() => {
-                        // Include the user type in the user data
-                        const userData = { name, email, photoURL: photo, uid: user.uid, userType };
+        try {
+            const result = await createUser(email, password);
+            const user = result.user;
+            setUser(user);
+            await updateUserProfile({ displayName: name, photoURL: photo });
 
-                        // Always post to /users
-                        fetch("https://work-sync-server-eight.vercel.app/users", {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify(userData),
-                        })
-                            .then(response => response.json())
-                            .catch(error => {
-                                console.error("Error:", error);
-                                setError({ ...error, backend: "Failed to register user." });
-                            });
-                    })
-                    .catch((err) => {
-                        console.log(err);
-                    });
-            })
-            .catch((error) => {
-                console.log(error);
-                const errorCode = error.code;
-                const errorMessage = error.message;
-                console.log(errorCode, errorMessage);
+            // Registration always creates an employee. Roles change only via
+            // the server's admin-gated promotion endpoints, never from here.
+            const userData = { name, email, photoURL: photo, uid: user.uid, userType: "employee" };
+
+            const response = await apiFetch("/users", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(userData),
             });
-    redirect("/");
+            if (!response.ok) {
+                const body = await response.json().catch(() => ({}));
+                throw new Error(body.message || "Failed to register user.");
+            }
+
+            toast.success("Account created. Welcome!");
+            navigate("/");
+        } catch (err) {
+            console.error("Registration error:", err);
+            const message = err.message || "Failed to register user.";
+            setError({ ...error, backend: message });
+            toast.error(message);
+        }
     };
 
     return (
@@ -89,23 +86,12 @@ const Register = () => {
                         <input type="password" placeholder="password" className="input input-bordered" required name="password" />
                         {error.password && <label className="label text-xs text-rose-500">{error.password}</label>}
                     </div>
-                    {/* Dropdown for user type */}
-                    <div className="form-control">
-                        <label className="label">
-                            <span className="text-black font-bold">User Type</span>
-                        </label>
-                        <select
-                            className="input input-bordered"
-                            name="userType"
-                            value={userType}
-                            onChange={(e) => setUserType(e.target.value)}
-                        >
-                            <option value="employee">Employee</option>
-                            <option value="hr">HR</option>
-                        </select>
-                    </div>
+                    <p className="text-sm text-gray-500 text-left">
+                        New accounts start as Employee. Roles change only through an admin.
+                    </p>
                     <div className="form-control mt-6">
                         <button className="btn btn-success text-black rounded-xl border-none hover:bg-gray-500">Register</button>
+                        {error.backend && <label className="label text-xs text-rose-500">{error.backend}</label>}
                     </div>
                 </form>
                 <p className="text-center font-semibold pb-5">Already Have An Account? <Link className="text-red-500" to="/auth/login">Login</Link></p>
