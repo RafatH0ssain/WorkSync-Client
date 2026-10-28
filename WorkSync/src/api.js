@@ -18,10 +18,10 @@ const ADMIN_TOKEN = import.meta.env.VITE_ADMIN_TOKEN || '';
 
 // Mirrors the server's requireAdmin route list exactly. Open routes are
 // absent on purpose so the header is never sent where the API does not expect
-// it: the single-record reads (GET /users/:uid, /worksheet/:email,
-// /payment-historya/:email, /employee-owed/:email, /check-pending-payment/:email,
-// /check-user-status/:uid), the public signup (POST /users) and the public
-// contact form (POST /submit-query).
+// it: the single-record reads (GET /users/:uid, /check-user-status/:uid,
+// /worksheet/:email, /payment-history/:email, /payment-historya/:email,
+// /employee-owed/:email, /check-pending-payment/:email), the public signup
+// (POST /users) and the public contact form (POST /submit-query).
 const PROTECTED_ROUTES = [
     ['GET', /^\/users$/],
     ['GET', /^\/queries$/],
