@@ -17,6 +17,7 @@ git clone https://github.com/RafatH0ssain/WorkSync-Client.git
 cd WorkSync-Client/WorkSync
 cp .env.example .env
 # fill in the six VITE_FIREBASE_* values from your Firebase project settings
+# set VITE_ADMIN_TOKEN to the same value as the server's ADMIN_TOKEN
 npm install
 npm run dev
 ```
@@ -26,6 +27,36 @@ Vite serves the app at http://localhost:5173.
 Other scripts: `npm run build`, `npm run lint`, `npm run preview`.
 
 The client calls the deployed WorkSync-Server API by default. Firebase handles sign-in; the server stores users, work logs, and payroll records.
+
+## Environment variables
+
+All values live in `WorkSync/.env` (gitignored). `WorkSync/.env.example` lists every key.
+
+| Variable | Required | What it does |
+| --- | --- | --- |
+| `VITE_FIREBASE_API_KEY` | yes | Firebase web config from your project settings. |
+| `VITE_FIREBASE_AUTH_DOMAIN` | yes | Firebase web config. |
+| `VITE_FIREBASE_PROJECT_ID` | yes | Firebase web config. |
+| `VITE_FIREBASE_STORAGE_BUCKET` | yes | Firebase web config. |
+| `VITE_FIREBASE_MESSAGING_SENDER_ID` | yes | Firebase web config. |
+| `VITE_FIREBASE_APP_ID` | yes | Firebase web config. |
+| `VITE_API_BASE_URL` | no | API origin. Empty uses the deployed `https://work-sync-server-eight.vercel.app`. If you change it, also allow the origin in the CSP inside `WorkSync/firebase.json`. |
+| `VITE_ADMIN_TOKEN` | for any API write and for the admin and HR pages | Shared secret the server requires in the `x-admin-token` header. Must match the server's `ADMIN_TOKEN`. Generate one with `openssl rand -hex 32`. |
+
+The Firebase web API key is public by design and is not a secret. `VITE_ADMIN_TOKEN` is different: treat it like a password for the server's protected routes and keep it out of commits.
+
+## Security model
+
+The server is the authorization boundary. Everything the client does with roles is presentation, and a hidden link is not access control.
+
+- Role checks in `Navbar` and `RoleRoute` only decide what to draw. They are not access control: the server decides what every call is allowed to do.
+- The role shown in the UI comes from the server's user record (`GET /users/:uid`) on every auth change. The client keeps no role claim in localStorage or sessionStorage and stores no tokens of its own. Firebase manages its own sign-in persistence.
+- API calls go through one module, `src/api.js`. It single-sources the base URL and attaches `x-admin-token` only on the routes the server protects (registration, contact form, worksheet writes, and the admin and HR bulk reads and payroll actions). Open single-record reads never carry the header.
+- `x-admin-token` is one shared secret for the whole protected surface. It is compiled into the public bundle, so it proves a call comes from the deployed client and nothing more. Who the caller is and what role they hold are still the server's job. Server-side checks against real user tokens (Firebase ID tokens) are the known upgrade path on the server.
+- Per-user reads (worksheet, payment history) are keyed by the `:email` path parameter because that is what the API exposes today. The client sends no `?userEmail=` style query filters. Moving these to uid-keyed routes behind verified identity needs a server change.
+- The legacy `GET /payment-historya/:email` route stays because the server keeps it as an alias.
+- Security headers (CSP, frame-ancestors, nosniff, and friends) are set in `WorkSync/firebase.json` for Firebase Hosting.
+- `npm run check:security` (inside `WorkSync/`) greps for the regressions this pass fixed: no `innerHTML` sinks, one source for the API base URL, the admin token only in `src/api.js`, and no hardcoded secrets.
 
 ## What each role can do
 
