@@ -2,19 +2,8 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { AuthContext } from "./AuthContext";
 import { useContext, useState } from "react";
 import { toast } from 'react-toastify';
-import axios from 'axios';
 import SocialsLogin from './SocialsLogin.jsx'
-import { API_BASE } from "../../api";
-
-// Create axios instance with default config
-const api = axios.create({
-    baseURL: API_BASE,
-    withCredentials: false,
-    headers: {
-        'Content-Type': 'application/json',
-        'Cache-Control': 'no-cache'
-    }
-});
+import { apiFetch } from "../../api";
 
 const Login = () => {
     const { userLogin, setUser, logOut } = useContext(AuthContext);
@@ -24,16 +13,16 @@ const Login = () => {
     const [isLoading, setIsLoading] = useState(false);
 
     const checkUserStatus = async (uid) => {
-        try {
-            const response = await api.get(`/check-user-status/${uid}`);
-            return response.data;
-        } catch (error) {
-            console.error('Error checking user status:', error);
-            if (error.response?.status === 403) {
+        const response = await apiFetch(`/check-user-status/${uid}`);
+        if (!response.ok) {
+            const detail = await response.json().catch(() => ({}));
+            console.error('Error checking user status:', response.status);
+            if (response.status === 403) {
                 throw new Error('CORS error: Not allowed to access the server');
             }
-            throw error;
+            throw new Error(detail.error || `Request failed with status ${response.status}`);
         }
+        return response.json();
     };
 
     const handleSubmit = async (e) => {
