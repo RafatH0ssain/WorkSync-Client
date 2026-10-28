@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { toast } from 'react-toastify';
 import { Mail, Phone, MapPin } from 'lucide-react';
-import { AuthContext } from '../components/Auth/AuthProvider';
+import { AuthContext } from '../components/Auth/AuthContext';
 import { useContext } from 'react';
 import { apiFetch } from '../api';
 

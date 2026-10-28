@@ -1,11 +1,11 @@
-import { createContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import PropTypes from "prop-types";
 import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut, createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import app from "../../firebaseConfig";
 import { apiFetch } from "../../api";
+import { AuthContext } from "./AuthContext";
 
 const auth = getAuth(app);
-
-export const AuthContext = createContext();
 
 const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
@@ -129,6 +129,10 @@ const AuthProvider = ({ children }) => {
             {!loading ? children : <div>Loading...</div>}
         </AuthContext.Provider>
     );
+};
+
+AuthProvider.propTypes = {
+    children: PropTypes.node.isRequired,
 };
 
 export default AuthProvider;

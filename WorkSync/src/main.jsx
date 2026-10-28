@@ -9,7 +9,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import '../public/index.css';
 import Home from './pages/Home';
 import ErrorPage from './ErrorPage';
-import AuthProvider from './components/Auth/AuthProvider';
+import RootLayout from './RootLayout';
 import ContactUs from './pages/ContactUs';
 import Navbar from './components/Shared/Navbar';
 import Footer from './components/Shared/Footer';
@@ -20,7 +20,6 @@ import Login from './components/Auth/Login';
 import Register from './components/Auth/Register';
 import Worksheet from './pages/Employee/Worksheet';
 import PaymentHistory from './pages/Employee/PaymentHistory';
-import { Outlet } from 'react-router-dom';
 import EmployeeDetails from './pages/HR/EmployeeDetails';
 import Progress from './pages/HR/Progress';
 import EmployeeList from './pages/HR/EmployeeList';
@@ -28,14 +27,6 @@ import AllEmployeesList from './pages/Admin/AllEmployeeList';
 import Payroll from './pages/Admin/Payroll';
 import Profile from './pages/Profile';
 import AboutUs from './pages/AboutUs';
-
-const RootLayout = () => {
-  return (
-    <AuthProvider>
-      <Outlet />
-    </AuthProvider>
-  );
-};
 
 const router = createBrowserRouter([
   {

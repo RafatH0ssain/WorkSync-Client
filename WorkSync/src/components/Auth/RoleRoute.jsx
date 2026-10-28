@@ -1,6 +1,7 @@
 import { useContext } from "react";
+import PropTypes from "prop-types";
 import { Link, Navigate } from "react-router-dom";
-import { AuthContext } from "./AuthProvider";
+import { AuthContext } from "./AuthContext";
 
 // UI convenience only. The server is the authorization boundary for every
 // action behind these routes; hiding a page here is not access control.
@@ -31,6 +32,11 @@ const RoleRoute = ({ allowedRoles, children }) => {
     }
 
     return children;
+};
+
+RoleRoute.propTypes = {
+    allowedRoles: PropTypes.arrayOf(PropTypes.string).isRequired,
+    children: PropTypes.node.isRequired,
 };
 
 export default RoleRoute;

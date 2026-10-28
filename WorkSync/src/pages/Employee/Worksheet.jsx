@@ -1,9 +1,9 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext, useCallback } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
-import { AuthContext } from "../../components/Auth/AuthProvider";
+import { AuthContext } from "../../components/Auth/AuthContext";
 import { apiFetch } from "../../api";
 
 const Worksheet = () => {
@@ -19,14 +19,8 @@ const Worksheet = () => {
     const [error, setError] = useState(null);
     const { user, userDetails } = useContext(AuthContext);
 
-    useEffect(() => {
-        if (user?.uid) {
-            Promise.all([fetchTasks(), fetchPaymentHistory()]);
-        }
-    }, [user?.uid]);
-
     // Add fetchPaymentHistory function
-    const fetchPaymentHistory = async () => {
+    const fetchPaymentHistory = useCallback(async () => {
         try {
             const response = await apiFetch(`/payment-historya/${user.email}`);
             if (!response.ok) throw new Error(`Failed to fetch payment history: ${response.status}`);
@@ -45,9 +39,9 @@ const Worksheet = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [user]);
 
-    const fetchTasks = async () => {
+    const fetchTasks = useCallback(async () => {
         try {
             const response = await apiFetch(`/worksheet/${user.email}`);
             if (!response.ok) throw new Error(`Failed to fetch tasks: ${response.status}`);
@@ -65,7 +59,13 @@ const Worksheet = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [user]);
+
+    useEffect(() => {
+        if (user?.uid) {
+            Promise.all([fetchTasks(), fetchPaymentHistory()]);
+        }
+    }, [user?.uid, fetchTasks, fetchPaymentHistory]);
 
     const handleAddTask = async () => {
         try {

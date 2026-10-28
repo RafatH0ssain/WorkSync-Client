@@ -1,4 +1,5 @@
 import { useState, useEffect, useContext } from 'react';
+import PropTypes from 'prop-types';
 import {
     useReactTable,
     getCoreRowModel,
@@ -9,7 +10,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { X, Check, User } from 'lucide-react';
 import { toast } from 'react-toastify';
-import { AuthContext } from '../../components/Auth/AuthProvider';
+import { AuthContext } from '../../components/Auth/AuthContext';
 import { apiFetch } from '../../api';
 
 const EmployeeList = () => {
@@ -112,7 +113,7 @@ const EmployeeList = () => {
         }
     };
 
-    const ImageWithFallback = ({ src, alt }) => {
+    const ImageWithFallback = ({ src = '', alt = '' }) => {
         const [error, setError] = useState(false);
         const handleError = () => {
             setError(true);
@@ -132,6 +133,11 @@ const EmployeeList = () => {
                 className="w-8 h-8 rounded-full object-cover"
             />
         );
+    };
+
+    ImageWithFallback.propTypes = {
+        src: PropTypes.string,
+        alt: PropTypes.string,
     };
 
     const handleOpenPaymentModal = (employee) => {

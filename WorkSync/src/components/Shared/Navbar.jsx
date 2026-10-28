@@ -1,5 +1,5 @@
 import { useContext, useState } from 'react';
-import { AuthContext } from '../Auth/AuthProvider';
+import { AuthContext } from '../Auth/AuthContext';
 import logoSvg from '../../assets/svg_logo_docFileImage.svg';
 import { Link } from 'react-router-dom';
 import { FaUserAstronaut } from 'react-icons/fa';

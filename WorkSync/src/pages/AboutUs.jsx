@@ -1,4 +1,3 @@
-import React from 'react';
 import { Users, Trophy, Clock, Target } from 'lucide-react';
 import aboutTeamImage from '../assets/about-team.gif';
 import { Link } from 'react-router-dom';

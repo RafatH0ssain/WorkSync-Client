@@ -146,7 +146,7 @@ const Home = () => {
                                     ))}
                                 </div>
                                 <p className="text-gray-600 mb-4 bg-orange-50">
-                                    "This platform has revolutionized how we manage our workforce. The efficiency and ease of use are remarkable!"
+                                    “This platform has revolutionized how we manage our workforce. The efficiency and ease of use are remarkable!”
                                 </p>
                                 <div className="flex items-center gap-4 bg-orange-50">
                                     <div className="w-12 h-12 bg-orange-200 rounded-full"></div>
@@ -167,7 +167,7 @@ const Home = () => {
                     <div className="max-w-3xl mx-auto text-center bg-orange-50">
                         <h2 className="text-3xl font-bold mb-6 bg-orange-50">About WorkSync</h2>
                         <p className="text-gray-600 leading-relaxed mb-8 bg-orange-50">
-                            WorkSync is more than just an HR management system - it's your partner in building a more efficient,
+                            WorkSync is more than just an HR management system - it’s your partner in building a more efficient,
                             connected, and productive workplace. Our platform combines cutting-edge technology with user-friendly
                             design to streamline all your HR processes.
                         </p>

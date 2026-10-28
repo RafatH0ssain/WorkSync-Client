@@ -1,11 +1,12 @@
-import React, { useContext } from 'react';
-import { AuthContext } from '../components/Auth/AuthProvider';
+import { useContext } from 'react';
+import PropTypes from 'prop-types';
+import { AuthContext } from '../components/Auth/AuthContext';
 import { UserCircle, Briefcase, Users, Shield } from 'lucide-react';
 
 const Profile = () => {
     const { userDetails } = useContext(AuthContext);
 
-    const UserIcon = ({ userType }) => {
+    const UserIcon = ({ userType = 'employee' }) => {
         const baseClasses = "w-24 h-24 transition-all duration-300 group-hover:scale-110";
         switch (userType) {
             case 'hr':
@@ -15,6 +16,10 @@ const Profile = () => {
             default:
                 return <Briefcase className={baseClasses} />;
         }
+    };
+
+    UserIcon.propTypes = {
+        userType: PropTypes.oneOf(['hr', 'admin', 'employee']),
     };
 
     return (
@@ -105,6 +110,12 @@ const DetailCard = ({ title, value, icon }) => (
         </div>
     </div>
 );
+
+DetailCard.propTypes = {
+    title: PropTypes.string.isRequired,
+    value: PropTypes.string.isRequired,
+    icon: PropTypes.element.isRequired,
+};
 
 import {
     Chart as ChartJS,
@@ -222,7 +233,7 @@ const HRVideoSection = () => {
         }, 5000); // Change video every 5 seconds
 
         return () => clearInterval(intervalId); // Cleanup interval on unmount
-    }, []);
+    }, [hrVideos.length]);
 
     return (
         <div className="bg-white p-6 rounded-xl shadow-lg mt-8">
@@ -241,7 +252,7 @@ const HRVideoSection = () => {
     );
 };
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 
 const EmployeeVideoSection = () => {
     const videos = [
@@ -260,7 +271,7 @@ const EmployeeVideoSection = () => {
         }, 5000); // Change video every 5 seconds
 
         return () => clearInterval(intervalId); // Cleanup interval on unmount
-    }, []);
+    }, [videos.length]);
 
     return (
         <div className="bg-white p-6 rounded-xl shadow-lg mt-8">

@@ -1,6 +1,7 @@
 import { useContext } from "react";
+import PropTypes from "prop-types";
 import { Navigate } from "react-router-dom";
-import { AuthContext } from "./AuthProvider";
+import { AuthContext } from "./AuthContext";
 
 // Login gate only. The server is the authorization boundary: a signed-in
 // user here proves identity to Firebase, nothing more. Role checks live in
@@ -15,6 +16,10 @@ const PrivateRoute = ({ children }) => {
     }
 
     return children;
+};
+
+PrivateRoute.propTypes = {
+    children: PropTypes.node.isRequired,
 };
 
 export default PrivateRoute;

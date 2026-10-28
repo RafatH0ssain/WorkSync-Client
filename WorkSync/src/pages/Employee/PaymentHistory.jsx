@@ -1,5 +1,5 @@
-import { useState, useEffect, useContext } from 'react';
-import { AuthContext } from "../../components/Auth/AuthProvider";
+import { useState, useEffect, useContext, useCallback } from 'react';
+import { AuthContext } from "../../components/Auth/AuthContext";
 import { apiFetch } from '../../api';
 
 const PaymentHistory = () => {
@@ -10,11 +10,7 @@ const PaymentHistory = () => {
     const [error, setError] = useState(null);
     const { user } = useContext(AuthContext);
 
-    useEffect(() => {
-        fetchPayments(currentPage);
-    }, [currentPage, user?.uid]);
-
-    const fetchPayments = async () => {
+    const fetchPayments = useCallback(async () => {
         if (!user?.uid) return;
 
         try {
@@ -39,7 +35,11 @@ const PaymentHistory = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [user]);
+
+    useEffect(() => {
+        fetchPayments();
+    }, [currentPage, fetchPayments]);
 
     const displayedPayments = payments.slice((currentPage - 1) * 5, currentPage * 5);
 

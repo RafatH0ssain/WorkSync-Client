@@ -1,5 +1,4 @@
 import logoSvg from '../../assets/svg_logo_docFileImage.svg';
-import { Link } from 'react-router-dom';
 
 const Footer = () => {
     return (

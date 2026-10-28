@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { AuthContext } from "./AuthProvider.jsx";
+import { AuthContext } from "./AuthContext";
 import { useContext, useState } from "react";
 import { toast } from 'react-toastify';
 import axios from 'axios';
@@ -144,7 +144,7 @@ const Login = () => {
                     </div>
                 </form>
                 <p className="text-center font-semibold">
-                    Don't Have An Account? <Link className="text-red-500" to="/auth/register">Register</Link>
+                    Don’t Have An Account? <Link className="text-red-500" to="/auth/register">Register</Link>
                 </p>
             </div>
             <h2 className="text-black text-3xl font-extrabold pt-5 pb-10">OR</h2>
