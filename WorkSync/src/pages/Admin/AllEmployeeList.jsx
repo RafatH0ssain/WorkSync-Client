@@ -90,7 +90,7 @@ const AllEmployeeList = () => {
         try {
             const response = await apiFetch(`/adjust-salary/${employeeId}`, {
                 method: 'POST',
-                body: JSON.stringify({ salary: newSalary }),
+                body: JSON.stringify({ newSalary }),
                 headers: { 'Content-Type': 'application/json' },
             });
             if (response.status === 401 || response.status === 403) {
@@ -137,8 +137,8 @@ const AllEmployeeList = () => {
             setSalaryError('Enter a valid number.');
             return;
         }
-        if (amount < 1 || amount > 1000000) {
-            setSalaryError('Enter an amount between 1 and 1,000,000.');
+        if (amount < 1 || amount >= 100000) {
+            setSalaryError('Enter an amount between 1 and 99,999.');
             return;
         }
         handleSalaryAdjustment(employee._id, amount);
