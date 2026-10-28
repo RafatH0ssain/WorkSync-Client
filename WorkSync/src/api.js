@@ -15,16 +15,15 @@ export const API_BASE = RAW_BASE.replace(/\/+$/, '');
 // caller is, which role they have) must be enforced by the server.
 const ADMIN_TOKEN = import.meta.env.VITE_ADMIN_TOKEN || '';
 
-// Mirrors the server's requireAdmin route list exactly. Open single-record
-// reads (GET /users/:uid, /worksheet/:email, /payment-historya/:email,
-// /employee-owed/:email, /check-pending-payment/:email, /check-user-status/:uid)
-// are absent on purpose so the header is never sent where the API does not
-// expect it.
+// Mirrors the server's requireAdmin route list exactly. Open routes are
+// absent on purpose so the header is never sent where the API does not expect
+// it: the single-record reads (GET /users/:uid, /worksheet/:email,
+// /payment-historya/:email, /employee-owed/:email, /check-pending-payment/:email,
+// /check-user-status/:uid), the public signup (POST /users) and the public
+// contact form (POST /submit-query).
 const PROTECTED_ROUTES = [
     ['GET', /^\/users$/],
-    ['POST', /^\/users$/],
     ['GET', /^\/queries$/],
-    ['POST', /^\/submit-query$/],
     ['POST', /^\/fire\/[^/]+$/],
     ['POST', /^\/make-hr\/[^/]+$/],
     ['POST', /^\/adjust-salary\/[^/]+$/],
