@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import { useContext, useState } from 'react';
 import { AuthContext } from '../Auth/AuthProvider';
 import logoSvg from '../../assets/svg_logo_docFileImage.svg';
 import { Link } from 'react-router-dom';
@@ -6,6 +6,7 @@ import { FaUserAstronaut } from 'react-icons/fa';
 
 const Navbar = () => {
     const { user, logOut, loading, userDetails } = useContext(AuthContext);
+    const [avatarFailed, setAvatarFailed] = useState(false);
 
     // Show minimal navbar during loading
     if (loading) {
@@ -17,7 +18,9 @@ const Navbar = () => {
         </div>;
     }
 
-    // Only check roles if userDetails exists
+    // Role links are UI convenience only. The server is the authorization
+    // boundary for every action behind these links; a hidden link is not
+    // access control, and the server re-checks each call.
     const isEmployee = userDetails?.userType === "employee";
     const isHR = userDetails?.userType === "hr";
     const isAdmin = userDetails?.userType === "admin";
@@ -35,16 +38,11 @@ const Navbar = () => {
                     <div className="dropdown dropdown-end">
                         <div tabIndex={0} role="button" className="btn btn-ghost btn-circle avatar">
                             <div className="w-15 rounded-full overflow-hidden transition-transform duration-250 hover:scale-110 hover:brightness-90">
-                                {user.photoURL ? (
+                                {user.photoURL && !avatarFailed ? (
                                     <img
                                         alt={user.displayName || 'User'}
                                         src={user.photoURL}
-                                        onError={(e) => {
-                                            e.target.style.display = 'none';
-                                            // Create and append FaUserAstronaut icon
-                                            const iconContainer = e.target.parentElement;
-                                            iconContainer.innerHTML = '<div class="flex items-center justify-center h-full bg-gray-200"><FaUserAstronaut size={24} /></div>';
-                                        }}
+                                        onError={() => setAvatarFailed(true)}
                                     />
                                 ) : (
                                     <div className="flex items-center justify-center h-full bg-gray-200">
