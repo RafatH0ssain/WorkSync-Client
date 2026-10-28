@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Fragment } from 'react';
+import PropTypes from 'prop-types';
 import { Search, ChevronDown, ChevronUp } from 'lucide-react';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -12,6 +13,10 @@ const AllEmployeeList = () => {
     const [error, setError] = useState(null);
     const [selectedEmployee, setSelectedEmployee] = useState(null); // for firing
     const [showModal, setShowModal] = useState(false); // modal visibility
+    const [salaryTarget, setSalaryTarget] = useState(null); // employee whose salary form is open
+    const [salaryAmount, setSalaryAmount] = useState('');
+    const [salaryError, setSalaryError] = useState(null); // inline error in the salary form
+    const [salarySaving, setSalarySaving] = useState(false); // request in flight
 
     useEffect(() => {
         fetchEmployees();
@@ -80,18 +85,63 @@ const AllEmployeeList = () => {
     };
 
     const handleSalaryAdjustment = async (employeeId, newSalary) => {
+        setSalarySaving(true);
+        setSalaryError(null);
         try {
             const response = await apiFetch(`/adjust-salary/${employeeId}`, {
                 method: 'POST',
                 body: JSON.stringify({ salary: newSalary }),
                 headers: { 'Content-Type': 'application/json' },
             });
-            if (!response.ok) throw new Error('Failed to adjust salary');
-            // Update salary in the UI if needed
+            if (response.status === 401 || response.status === 403) {
+                setSalaryError('You need admin access to adjust salaries.');
+                return;
+            }
+            if (!response.ok) {
+                const data = await response.json().catch(() => ({}));
+                throw new Error(data.error || 'Failed to adjust salary');
+            }
+            toast.success('Salary adjusted successfully');
+            setSalaryTarget(null);
+            setSalaryAmount('');
         } catch (err) {
             console.error('Failed to adjust salary', err);
-            toast.error('Failed to adjust salary');
+            setSalaryError(err.message || 'Failed to adjust salary. Please try again.');
+        } finally {
+            setSalarySaving(false);
         }
+    };
+
+    const openSalaryForm = (employee) => {
+        setSalaryTarget(employee);
+        setSalaryAmount('');
+        setSalaryError(null);
+    };
+
+    const closeSalaryForm = () => {
+        if (salarySaving) return;
+        setSalaryTarget(null);
+        setSalaryAmount('');
+        setSalaryError(null);
+    };
+
+    const submitSalaryAdjustment = (event, employee) => {
+        event.preventDefault();
+        const raw = salaryAmount.trim();
+        if (!raw) {
+            setSalaryError('Enter an adjustment amount first.');
+            return;
+        }
+        const amount = Number(raw);
+        if (!Number.isFinite(amount)) {
+            setSalaryError('Enter a valid number.');
+            return;
+        }
+        if (amount < 1 || amount > 1000000) {
+            setSalaryError('Enter an amount between 1 and 1,000,000.');
+            return;
+        }
+        handleSalaryAdjustment(employee._id, amount);
     };
 
     const getUserTypeBadgeClasses = (userType = 'employee') => {
@@ -136,6 +186,10 @@ const AllEmployeeList = () => {
         return sortConfig.direction === 'asc' ?
             <ChevronUp className="inline w-4 h-4" /> :
             <ChevronDown className="inline w-4 h-4" />;
+    };
+
+    SortIcon.propTypes = {
+        column: PropTypes.string.isRequired,
     };
 
     if (loading) return (
@@ -197,7 +251,8 @@ const AllEmployeeList = () => {
                         </thead>
                         <tbody className="divide-y divide-gray-200">
                             {filteredEmployees.map((employee, index) => (
-                                <tr key={employee._id || index} className="hover:bg-gray-50">
+                                <Fragment key={employee._id || index}>
+                                    <tr className="hover:bg-gray-50">
                                     <td className="px-6 py-4">
                                         <div className="flex items-center">
                                             <img
@@ -249,8 +304,64 @@ const AllEmployeeList = () => {
                                         >
                                             Fire
                                         </button>
+                                        <button
+                                            className="text-orange-600 hover:text-orange-800 font-medium text-sm ml-3"
+                                            onClick={() => openSalaryForm(employee)}
+                                            disabled={employee.status === 'fired' || (salarySaving && salaryTarget?._id === employee._id)}
+                                        >
+                                            Adjust salary
+                                        </button>
                                     </td>
                                 </tr>
+                                {salaryTarget?._id === employee._id && (
+                                    <tr className="bg-orange-50">
+                                        <td colSpan={6} className="px-6 py-4">
+                                            <form
+                                                onSubmit={(e) => submitSalaryAdjustment(e, employee)}
+                                                className="flex flex-wrap items-center gap-3"
+                                            >
+                                                <label
+                                                    htmlFor={`salary-amount-${employee._id}`}
+                                                    className="text-sm font-medium text-gray-700"
+                                                >
+                                                    Adjustment amount (USD)
+                                                </label>
+                                                <input
+                                                    id={`salary-amount-${employee._id}`}
+                                                    type="number"
+                                                    step="0.01"
+                                                    placeholder="e.g. 52000"
+                                                    className="px-3 py-2 border rounded-lg w-40 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                                                    value={salaryAmount}
+                                                    onChange={(e) => { setSalaryAmount(e.target.value); setSalaryError(null); }}
+                                                    disabled={salarySaving}
+                                                    autoFocus
+                                                />
+                                                <button
+                                                    type="submit"
+                                                    className="bg-orange-600 text-white py-2 px-4 rounded-lg font-medium text-sm disabled:opacity-50"
+                                                    disabled={salarySaving}
+                                                >
+                                                    {salarySaving ? 'Saving...' : 'Save'}
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    className="bg-gray-500 text-white py-2 px-4 rounded-lg font-medium text-sm disabled:opacity-50"
+                                                    onClick={closeSalaryForm}
+                                                    disabled={salarySaving}
+                                                >
+                                                    Cancel
+                                                </button>
+                                                {salaryError && (
+                                                    <span className="text-sm text-red-600" role="alert">
+                                                        {salaryError}
+                                                    </span>
+                                                )}
+                                            </form>
+                                        </td>
+                                    </tr>
+                                )}
+                                </Fragment>
                             ))}
                         </tbody>
                     </table>
